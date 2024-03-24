@@ -8,6 +8,7 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
+import com.tejasdev.bunkbuddy.datamodel.Lecture
 import com.tejasdev.bunkbuddy.datamodel.Subject
 import com.tejasdev.bunkbuddy.getOrAwaitValue
 import com.tejasdev.bunkbuddy.room.dao.SubjectDao
@@ -25,8 +26,8 @@ import org.junit.runner.RunWith
 @SmallTest
 class SubjectDaoTest {
 
-//    @get:Rule
-//    var instantTaskExecutorRule = InstantTaskExecutorRule()
+    @get:Rule
+    var instantTaskExecutorRule = InstantTaskExecutorRule()
 
     private lateinit var database: SubjectDatabase
     private lateinit var dao: SubjectDao
@@ -79,5 +80,52 @@ class SubjectDaoTest {
         assertThat(allItems).doesNotContain(subject)
     }
 
-    @
+    @Test
+    fun addLecture() = runBlocking{
+        val subject = Subject("name", 1, 1, 1, "now", 1)
+        dao.addSubject(subject)
+        val lecture = Lecture(0, subject, "", "", 1, subject.id)
+        dao.addLecture(lecture)
+        val allLectures = dao.getAllLectures()
+        assertThat(allLectures).contains(lecture)
+    }
+
+    @Test
+    fun deleteLecture() = runBlocking {
+        val subject = Subject("name", 1, 1, 1, "now", 1)
+        dao.addSubject(subject)
+        val lecture = Lecture(0, subject, "", "", 1, subject.id)
+        dao.addLecture(lecture)
+        dao.deleteLecture(lecture)
+        val allLectures = dao.getAllLectures()
+        assertThat(allLectures).doesNotContain(lecture)
+    }
+
+    @Test
+    fun updateSubjectAttendance() = runBlocking {
+        val subject = Subject("name", 1, 1, 1, "now", 1)
+        dao.addSubject(subject)
+        subject.attended++
+        dao.updateSubject(subject)
+        val updatedSubject = dao.getSubject(1)
+        assertThat(updatedSubject).isEqualTo(subject)
+    }
+
+    @Test
+    fun updateLectureOnUpdateSubject() = runBlocking {
+        val subject = Subject("name", 1, 1, 1, "now", 1)
+        dao.addSubject(subject)
+        val lecture = Lecture(0, subject, "", "", 1, subject.id)
+        dao.addLecture(lecture)
+        subject.attended++
+        dao.updateSubjectAndRelatedLectures(subject)
+        val allLectures = dao.getLecturesForSubject(subjectId =  1)
+
+        Log.w("testing-room", "o: $subject")
+        for(updatedLecture in allLectures){
+            Log.w("testing-room", "u: $updatedLecture")
+            assertThat(updatedLecture.subject).isEqualTo(subject)
+        }
+    }
+
 }

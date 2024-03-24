@@ -14,6 +14,9 @@
       <entry key="insertShoppingItem()">
         <State />
       </entry>
+      <entry key="updateSubjectAttendance()">
+        <State />
+      </entry>
     </value>
   </component>
 </project>
