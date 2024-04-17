@@ -82,4 +82,6 @@
     <string name="delete">Delete</string>
     <string name="upcoming_classes">Upcoming classes</string>
     <string name="account_">Account</string>
+    <string name="receive_timely_reminders_before_classes_with_low_attendance">Receive timely reminders before classes with low attendance.</string>
+    <string name="customize_the_app_s_appearance_for_comfortable_viewing_in_different_lighting_conditions">Customize the app\'s appearance for comfortable viewing in different lighting conditions.</string>
 </resources>

@@ -134,4 +134,37 @@ class AuthRepository @Inject constructor(
             }
         })
     }
+
+    fun updateUser(
+        email: String,
+        password: String,
+        image:String,
+        username:String,
+        callback: (User?, String?) -> Unit
+    ){
+        val call = api.updateUserDetails(
+            email = email,
+            password = password,
+            image = image,
+            username = username
+        )
+        call.enqueue(object: Callback<User>{
+            override fun onResponse(call: Call<User>, response: Response<User>) {
+                if(response.isSuccessful){
+                    val user = response.body()
+                    callback(user, null)
+                }
+                else{
+                    val errorBody = response.errorBody()?.string()
+                    val errorResponse = Gson().fromJson(errorBody, ErrorResponse::class.java)
+                    val errorMessage = errorResponse?.message?:"Something went wrong"
+                    callback(null, errorMessage)
+                }
+            }
+
+            override fun onFailure(call: Call<User>, t: Throwable) {
+                callback(null, t.message)
+            }
+        })
+    }
 }

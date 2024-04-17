@@ -36,6 +36,14 @@ interface AuthAPI {
         @Query("newPassword") newPassword: String
     ): Call<User>
 
+    @GET("/update")
+    fun updateUserDetails(
+        @Query("password") password: String,
+        @Query("image") image: String,
+        @Query("email") email: String,
+        @Query("username") username: String
+    ): Call<User>
+
     @POST("/update-username")
     fun updateUsername(
         @Query("email") email: String,

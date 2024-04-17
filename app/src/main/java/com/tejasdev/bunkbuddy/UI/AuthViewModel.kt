@@ -74,13 +74,22 @@ class AuthViewModel @Inject constructor(
             callback(user, message)
         }
     }
-    fun changePassword(email: String, currPassword: String, newPassword: String, callback: (User?, String?)->Unit){
-        repo.changePassword(email, currPassword, newPassword){user, message ->
-            callback(user, message)
-        }
-    }
-    fun updateProfilePic(email: String, newImage: String, callback: (User?, String?)-> Unit){
-        repo.changeProfilePicture(email, newImage){user, message ->
+
+    fun updateUserDetails(
+        name: String,
+        image: String,
+        callback: (User?, String?) -> Unit
+    ){
+        repo.updateUser(
+            email = getEmail(),
+            password = getPassword(),
+            username = name,
+            image = image
+        ){ user, message ->
+            user?.let{
+                updateUserName(user.name)
+                updateImage(user.image)
+            }
             callback(user, message)
         }
     }
