@@ -9,6 +9,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.MutableLiveData
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
@@ -19,10 +20,13 @@ import com.tejasdev.bunkbuddy.activities.MainActivity
 import com.tejasdev.bunkbuddy.activities.OnboardingActivity
 import com.tejasdev.bunkbuddy.databinding.FragmentLoginBinding
 import com.tejasdev.bunkbuddy.datamodel.User
+import dagger.hilt.android.AndroidEntryPoint
+
+@AndroidEntryPoint
 class LoginFragment : Fragment() {
     private var _binding: FragmentLoginBinding? = null
     private val binding get() = _binding!!
-    private lateinit var viewModel: AuthViewModel
+    private val viewModel: AuthViewModel by viewModels()
     private lateinit var sharedPref: SharedPreferences
     private var enterBtnState: MutableLiveData<Boolean> = MutableLiveData(true)
 
@@ -40,7 +44,9 @@ class LoginFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewModel = (activity as AuthActivity).viewModel
+        if(viewModel.isLogin() && !viewModel.isVerified()){
+            findNavController().navigate(R.id.action_loginFragment_to_otpFragment)
+        }
         binding.signUpTv.setOnClickListener {
             findNavController().navigate(R.id.action_loginFragment_to_signupFragment)
         }
@@ -61,7 +67,10 @@ class LoginFragment : Fragment() {
                             }
                             else {
                                 createSesssion(user)
-                                nextActivity()
+                                if(!user.isVerified) findNavController().navigate(R.id.action_loginFragment_to_otpFragment)
+                                else{
+                                    nextActivity()
+                                }
                             }
                         }
                     }

@@ -1,5 +1,6 @@
 package com.tejasdev.bunkbuddy.api
 
+import com.tejasdev.bunkbuddy.datamodel.MessageResponse
 import com.tejasdev.bunkbuddy.datamodel.User
 import retrofit2.Call
 import retrofit2.http.Body
@@ -50,4 +51,14 @@ interface AuthAPI {
         @Query("newUsername") newUsername: String,
         @Query("password") password: String
     ): Call<User>
+
+    @POST("/otp/send-otp")
+    fun sendOtp(
+        @Body map: HashMap<String, String>
+    ): Call<MessageResponse>
+
+    @POST("/otp/verify-otp")
+    fun verifyOtp(
+        @Body map: HashMap<String, String>
+    ): Call<MessageResponse>
 }

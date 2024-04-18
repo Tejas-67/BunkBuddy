@@ -39,7 +39,7 @@ class AuthViewModel @Inject constructor(
     fun createSession(user: User){
         Log.w("image-upload", "session create : ${user.image}")
         user.apply {
-            session.createSession(name, email, id, image, password)
+            session.createSession(name, email, id, image, password, isVerified)
         }
     }
     fun getUserImage(): Uri = session.getUserImage()
@@ -50,6 +50,8 @@ class AuthViewModel @Inject constructor(
             callback(user, message)
         }
     }
+    fun isVerified(): Boolean = session.isVerified()
+    fun markUserVerified() = session.changeUserToVerified()
     fun signOut(){
        session.signOut()
     }
@@ -74,6 +76,18 @@ class AuthViewModel @Inject constructor(
                 updateImage(user.image)
             }
             callback(user, message)
+        }
+    }
+
+    fun sendOtp(email: String, callback:(Boolean, String)->Unit){
+        repo.sendOtp(email){ success, message ->
+            callback(success, message)
+        }
+    }
+    fun verifyOtp(email: String, otp: String, callback:(Boolean, String)->Unit){
+        repo.verifyOtp(email, otp){ success, message ->
+            if(success) markUserVerified()
+            callback(success, message)
         }
     }
 

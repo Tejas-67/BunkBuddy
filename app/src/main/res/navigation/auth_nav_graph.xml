@@ -13,6 +13,9 @@
         <action
             android:id="@+id/action_loginFragment_to_signupFragment"
             app:destination="@id/signupFragment" />
+        <action
+            android:id="@+id/action_loginFragment_to_otpFragment"
+            app:destination="@id/otpFragment" />
     </fragment>
     <fragment
         android:id="@+id/signupFragment"
@@ -22,5 +25,13 @@
         <action
             android:id="@+id/action_signupFragment_to_loginFragment"
             app:destination="@id/loginFragment" />
+        <action
+            android:id="@+id/action_signupFragment_to_otpFragment"
+            app:destination="@id/otpFragment" />
     </fragment>
+    <fragment
+        android:id="@+id/otpFragment"
+        android:name="com.tejasdev.bunkbuddy.fragments.OtpFragment"
+        android:label="fragment_otp"
+        tools:layout="@layout/fragment_otp" />
 </navigation>
