@@ -9,7 +9,6 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.lifecycle.MutableLiveData
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
@@ -20,8 +19,6 @@ import com.tejasdev.bunkbuddy.activities.MainActivity
 import com.tejasdev.bunkbuddy.activities.OnboardingActivity
 import com.tejasdev.bunkbuddy.databinding.FragmentLoginBinding
 import com.tejasdev.bunkbuddy.datamodel.User
-
-
 class LoginFragment : Fragment() {
     private var _binding: FragmentLoginBinding? = null
     private val binding get() = _binding!!
@@ -50,11 +47,6 @@ class LoginFragment : Fragment() {
 
         sharedPref = requireActivity().getSharedPreferences(AuthActivity.SHARED_PREFERENCE, Context.MODE_PRIVATE)
 
-        binding.skipBtn.root.setOnClickListener {
-            viewModel.markLoginSkipped()
-            nextActivity()
-        }
-
         binding.enterBtn.setOnClickListener {
             if(viewModel.hasInternetConnection()){
                 if(enterBtnState.value!!){
@@ -69,7 +61,6 @@ class LoginFragment : Fragment() {
                             }
                             else {
                                 createSesssion(user)
-                                viewModel.markLoginNotSkipped()
                                 nextActivity()
                             }
                         }

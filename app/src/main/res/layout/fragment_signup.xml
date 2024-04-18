@@ -28,19 +28,6 @@
                 app:layout_constraintBottom_toBottomOf="@id/enter_btn"
                 app:layout_constraintStart_toStartOf="@id/enter_btn"
                 app:layout_constraintEnd_toEndOf="@id/enter_btn"/>
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:id="@+id/ll"
-                android:gravity="end"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                android:layout_height="wrap_content">
-                <include layout="@layout/skip_button"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/skip_btn"
-                    android:layout_width="wrap_content"/>
-            </LinearLayout>
             <com.google.android.material.textview.MaterialTextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -50,7 +37,7 @@
                 android:id="@+id/signup_static"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/ll"
+                app:layout_constraintTop_toTopOf="parent"
                 android:layout_marginTop="8dp"
                 app:fontFamily="sans-serif-black"
                 android:textSize="32sp"/>

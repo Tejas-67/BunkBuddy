@@ -61,10 +61,6 @@ class SignupFragment : Fragment() {
             findNavController().navigate(R.id.action_signupFragment_to_loginFragment)
         }
 
-        binding.skipBtn.root.setOnClickListener {
-            viewModel.markLoginSkipped()
-            nextActivity()
-        }
         binding.enterBtn.setOnClickListener {
             if(viewModel.hasInternetConnection()){
                 if(enterBtnState.value!!) {
@@ -117,7 +113,6 @@ class SignupFragment : Fragment() {
             }
             else{
                 createSession(user)
-                viewModel.markLoginNotSkipped()
                 nextActivity()
             }
         }

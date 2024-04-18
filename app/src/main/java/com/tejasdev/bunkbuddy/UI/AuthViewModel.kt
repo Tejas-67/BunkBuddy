@@ -23,25 +23,13 @@ class AuthViewModel @Inject constructor(
     private val repo: AuthRepository
 ): AndroidViewModel(app) {
 
-    private val context = app.applicationContext
-    private val session = Session.getInstance(context)
+    private val session = Session.getInstance(app.applicationContext)
 
     fun updateImage(image: String){
         session.updateUserImage(image)
     }
-
     fun updatePassword(newPass: String) = session.updatePassword(newPass)
     fun getPassword(): String = session.getPassword()
-
-    fun markLoginSkipped(){
-        session.loginSkipped()
-    }
-
-    fun isSkipped(): Boolean = session.isSkipped()
-
-    fun markLoginNotSkipped(){
-        session.loginNotSkipped()
-    }
     fun updateUserName(username: String) {
         session.updateUserName(username)
     }
@@ -54,8 +42,6 @@ class AuthViewModel @Inject constructor(
             session.createSession(name, email, id, image, password)
         }
     }
-
-    fun getUserId(): String = session.getUserId()
     fun getUserImage(): Uri = session.getUserImage()
     fun getUserName(): String = session.getUserName()
     fun getEmail(): String = session.getEmail()
@@ -64,17 +50,14 @@ class AuthViewModel @Inject constructor(
             callback(user, message)
         }
     }
-
-   fun signOut(){
+    fun signOut(){
        session.signOut()
-   }
-
+    }
     fun signupUser(email: String, name: String, password: String, image: String, callback: (User?, String?)->Unit){
         repo.signup(name, email, password, image){user, message ->
             callback(user, message)
         }
     }
-
     fun updateUserDetails(
         name: String,
         image: String,
@@ -98,26 +81,13 @@ class AuthViewModel @Inject constructor(
         val connectivityManager = getApplication<Application>().getSystemService(
             Context.CONNECTIVITY_SERVICE
         ) as ConnectivityManager
-        if(Build.VERSION.SDK_INT>= Build.VERSION_CODES.M){
-            val activeNetwork = connectivityManager.activeNetwork?:return false
-            val capability = connectivityManager.getNetworkCapabilities(activeNetwork)?:return false
-            return when{
-                capability.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> true
-                capability.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> true
-                capability.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) -> true
-                else -> false
-            }
+        val activeNetwork = connectivityManager.activeNetwork?:return false
+        val capability = connectivityManager.getNetworkCapabilities(activeNetwork)?:return false
+        return when{
+            capability.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> true
+            capability.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> true
+            capability.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) -> true
+            else -> false
         }
-        else{
-            connectivityManager.activeNetworkInfo?.run{
-                return when(type){
-                    ConnectivityManager.TYPE_WIFI -> true
-                    ContactsContract.CommonDataKinds.Email.TYPE_MOBILE ->  true
-                    ConnectivityManager.TYPE_ETHERNET ->  true
-                    else -> false
-                }
-            }
-        }
-        return false
     }
 }
