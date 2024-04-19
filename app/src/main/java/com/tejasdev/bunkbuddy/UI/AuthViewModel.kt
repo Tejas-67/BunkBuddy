@@ -91,6 +91,17 @@ class AuthViewModel @Inject constructor(
         }
     }
 
+    fun changeUserPassword(newPass: String, callback: (User?, String?) -> Unit){
+        repo.changePassword(
+            email = getEmail(),
+            newPassword = newPass,
+            currentPassword = getPassword()
+        ){ user, message ->
+            if(user!=null) createSession(user)
+            callback(user, message)
+        }
+    }
+
     fun hasInternetConnection(): Boolean{
         val connectivityManager = getApplication<Application>().getSystemService(
             Context.CONNECTIVITY_SERVICE

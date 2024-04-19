@@ -35,6 +35,41 @@
     <fragment
         android:id="@+id/settingsFragment"
         android:name="com.tejasdev.bunkbuddy.fragments.SettingsFragment"
-        android:label="SettingsFragment" />
+        android:label="SettingsFragment" >
+        <action
+            android:id="@+id/action_settingsFragment_to_changePasswordFragment"
+            app:destination="@id/changePasswordFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/changePasswordOtpFragment"
+        android:name="com.tejasdev.bunkbuddy.fragments.ChangePasswordOtpFragment"
+        android:label="ChangePasswordOtpFragment" >
+        <action
+            android:id="@+id/action_changePasswordOtpFragment_to_passwordFragment"
+            app:destination="@id/passwordFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/changePasswordFragment"
+        android:name="com.tejasdev.bunkbuddy.fragments.ChangePasswordFragment"
+        android:label="fragment_change_password"
+        tools:layout="@layout/fragment_change_password" >
+        <action
+            android:id="@+id/action_changePasswordFragment_to_passwordFragment"
+            app:destination="@id/passwordFragment" />
+        <action
+            android:id="@+id/action_changePasswordFragment_to_changePasswordOtpFragment"
+            app:destination="@id/changePasswordOtpFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/passwordFragment"
+        android:name="com.tejasdev.bunkbuddy.fragments.PasswordFragment"
+        android:label="fragment_password"
+        tools:layout="@layout/fragment_password" >
+        <action
+            android:id="@+id/action_passwordFragment_to_settingsFragment"
+            app:destination="@id/settingsFragment" />
+    </fragment>
+
 
 </navigation>

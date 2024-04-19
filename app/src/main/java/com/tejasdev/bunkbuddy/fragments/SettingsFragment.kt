@@ -18,6 +18,8 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.app.NotificationManagerCompat
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
+import com.tejasdev.bunkbuddy.R
 import com.tejasdev.bunkbuddy.UI.AlarmViewModel
 import com.tejasdev.bunkbuddy.UI.SubjectViewModel
 import com.tejasdev.bunkbuddy.activities.MainActivity
@@ -68,6 +70,9 @@ class SettingsFragment : Fragment() {
         binding.alertsSwitch.setOnCheckedChangeListener{_, isChecked ->
             if(isChecked) scheduleAlarms()
             else removeScheduledAlarms()
+        }
+        binding.changePasswordLl.setOnClickListener {
+            findNavController().navigate(R.id.action_settingsFragment_to_changePasswordFragment)
         }
     }
     private fun scheduleAlarms() {

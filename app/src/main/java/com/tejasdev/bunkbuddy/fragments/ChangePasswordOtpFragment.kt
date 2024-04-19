@@ -1,9 +1,5 @@
 package com.tejasdev.bunkbuddy.fragments
 
-import android.content.Context
-import android.content.Intent
-import android.content.SharedPreferences
-import android.opengl.Visibility
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -12,42 +8,34 @@ import android.view.ViewGroup
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
+import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
 import com.tejasdev.bunkbuddy.R
 import com.tejasdev.bunkbuddy.UI.AuthViewModel
-import com.tejasdev.bunkbuddy.activities.AuthActivity
-import com.tejasdev.bunkbuddy.activities.MainActivity
-import com.tejasdev.bunkbuddy.activities.OnboardingActivity
-import com.tejasdev.bunkbuddy.databinding.FragmentOtpBinding
+import com.tejasdev.bunkbuddy.databinding.FragmentChangePasswordOtpBinding
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class OtpFragment : Fragment() {
-
-    private var _binding: FragmentOtpBinding? = null
+class ChangePasswordOtpFragment : Fragment() {
+    private var _binding: FragmentChangePasswordOtpBinding? = null
     private val binding get() = _binding!!
     private val viewModel: AuthViewModel by viewModels()
     private val verifyButtonState = MutableLiveData(false)
-    private lateinit var sharedPref: SharedPreferences
-    private lateinit var editor: SharedPreferences.Editor
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        arguments?.let {}
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        _binding = FragmentOtpBinding.inflate(inflater, container, false)
+        _binding = FragmentChangePasswordOtpBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        sharedPref = requireContext().getSharedPreferences(AuthActivity.SHARED_PREFERENCE, Context.MODE_PRIVATE)
-        editor = sharedPref.edit()
         verifyButtonState.observe(viewLifecycleOwner, Observer {
             changeVerifyButtonState(it)
         })
@@ -58,7 +46,6 @@ class OtpFragment : Fragment() {
             )
         }
     }
-
     private fun changeVerifyButtonState(available: Boolean) {
         val state = if(available) View.VISIBLE else View.GONE
         binding.resendOtp.visibility = state
@@ -90,30 +77,9 @@ class OtpFragment : Fragment() {
             }
         }
     }
-
-    private fun nextScreen() {
-        val isFirstTime = sharedPref.getBoolean("isFirstTime", true)
-        if(isFirstTime){
-            val editor = sharedPref.edit()
-            editor.putBoolean("isFirstTime", false)
-            editor.apply()
-            moveToOnboardingActivity()
-        }
-        else moveToMainActivity()
+    private fun nextScreen(){
+        findNavController().navigate(R.id.action_changePasswordOtpFragment_to_passwordFragment)
     }
-
-    private fun moveToMainActivity(){
-        val intent = Intent(requireActivity(), MainActivity::class.java)
-        startActivity(intent)
-        requireActivity().finish()
-    }
-
-    private fun moveToOnboardingActivity(){
-        val intent = Intent(requireActivity(), OnboardingActivity::class.java)
-        startActivity(intent)
-        requireActivity().finish()
-    }
-
     private fun showSnackbar(message: String){
         Snackbar.make(requireView(), message, 2000).show()
     }
