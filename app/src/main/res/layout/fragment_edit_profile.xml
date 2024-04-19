@@ -6,10 +6,10 @@
     android:paddingStart="16dp"
     android:paddingEnd="16dp"
     android:gravity="center"
-    android:background="@color/black"
+    style="@style/ScreenBackground"
     android:orientation="vertical"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context=".fragments.SignupFragment">
+    tools:context=".fragments.EditProfileFragment">
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
@@ -54,7 +54,7 @@
                     android:layout_marginStart="-10dp"
                     android:layout_height="wrap_content"
                     android:src="@drawable/ic_edit_image"
-                    android:tint="@color/card_bg_light"
+                    style="@style/ToolbarIcon"
                     android:layout_gravity="bottom"/>
             </LinearLayout>
             <com.google.android.material.textview.MaterialTextView
@@ -64,9 +64,9 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/user_image_layout"
-                android:textColor="@color/white"
                 android:textStyle="bold"
                 android:id="@+id/create_username_tv"
+                style="@style/HeadingText"
                 android:layout_marginStart="4dp"
                 android:layout_marginTop="32dp"
                 android:text="Change Username"/>
@@ -77,7 +77,6 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/create_username_tv"
-                android:textColorHint="@color/white"
                 app:boxStrokeWidth="1dp"
                 app:boxCornerRadiusTopEnd="12dp"
                 app:boxStrokeWidthFocused="2dp"
@@ -88,7 +87,7 @@
                 app:boxCornerRadiusBottomEnd="12dp"
                 android:elevation="32dp"
                 android:id="@+id/username_text_input"
-                app:boxBackgroundColor="@color/card_bg"
+                style="@style/TextInput"
                 android:layout_height="wrap_content">
 
                 <com.google.android.material.textfield.TextInputEditText
@@ -96,7 +95,7 @@
                     app:boxCornerRadiusBottomEnd="12dp"
                     app:boxCornerRadiusTopStart="12dp"
                     android:id="@+id/username_text_edit"
-                    android:textColor="@color/white"
+                    style="@style/TextEditStyle"
                     android:hint="@string/eg_sebastian_stan"
                     android:textColorHint="@color/text_primary"
                     android:inputType="text"

@@ -48,10 +48,12 @@ class EditProfileFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.usernameTextEdit.setText(viewModel.getUserName())
-        Glide
-            .with(requireContext())
-            .load(viewModel.getUserImage())
-            .into(binding.userIv)
+        if(viewModel.getUserImage()!=Uri.parse("")){
+            Glide
+                .with(requireContext())
+                .load(viewModel.getUserImage())
+                .into(binding.userIv)
+        }
 
         binding.editImageIv.setOnClickListener {
             openGallery()
