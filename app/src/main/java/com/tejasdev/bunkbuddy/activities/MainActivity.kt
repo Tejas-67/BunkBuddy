@@ -60,15 +60,32 @@ class MainActivity : AppCompatActivity() {
         sharedPref = this.getSharedPreferences(SHARED_PREF, Context.MODE_PRIVATE)
         editor = sharedPref.edit()
         setUpTheme()
+        navController.addOnDestinationChangedListener{_, destination, _ ->
+            when(destination.id){
+                R.id.allSubjectsFragment, R.id.timetableFragment, R.id.profileFragment -> showBottomNav()
+                else -> hideBottomNav()
+            }
+        }
     }
 
+    override fun onBackPressed() {
+        val currentDestination = navController.currentDestination?.id
+        when(currentDestination){
+            R.id.settingsFragment -> navController.popBackStack(R.id.profileFragment, false)
+            else -> super.onBackPressed()
+        }
+    }
+
+    private fun showBottomNav(){
+        binding.bottomNav.visibility = View.VISIBLE
+    }
+    private fun hideBottomNav(){
+        binding.bottomNav.visibility = View.GONE
+    }
     private fun setUpTheme() {
         if(sharedPref.getBoolean(DARK_THEME, true))
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
         else AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-    }
-    private fun showSnackbar(view: View, message: String){
-        Snackbar.make(view, message, 1000).show()
     }
     companion object{
         const val NOTIFICATION_PERMISSION_REQUEST_CODE = 123
