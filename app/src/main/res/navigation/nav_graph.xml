@@ -27,6 +27,9 @@
         <action
             android:id="@+id/action_profileFragment_to_settingsFragment"
             app:destination="@id/settingsFragment"/>
+        <action
+            android:id="@+id/action_profileFragment_to_statisticsFragment"
+            app:destination="@id/statisticsFragment" />
     </fragment>
     <fragment
         android:id="@+id/editProfileFragment"
@@ -72,6 +75,11 @@
             app:popUpTo="@id/settingsFragment"
             app:popUpToInclusive="true"/>
     </fragment>
+    <fragment
+        android:id="@+id/statisticsFragment"
+        android:name="com.tejasdev.bunkbuddy.fragments.StatisticsFragment"
+        android:label="fragment_statistics"
+        tools:layout="@layout/fragment_statistics" />
 
 
 </navigation>

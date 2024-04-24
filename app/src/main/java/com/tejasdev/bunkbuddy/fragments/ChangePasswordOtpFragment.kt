@@ -22,6 +22,7 @@ class ChangePasswordOtpFragment : Fragment() {
     private val viewModel: AuthViewModel by viewModels()
     private val verifyButtonState = MutableLiveData(false)
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
     }
@@ -39,7 +40,15 @@ class ChangePasswordOtpFragment : Fragment() {
         verifyButtonState.observe(viewLifecycleOwner, Observer {
             changeVerifyButtonState(it)
         })
-        sendOtp()
+        if(viewModel.lastOtpTimeStamp==null || viewModel.lastOtpTimeStamp!! + 5*1000*60 <= System.currentTimeMillis()) sendOtp()
+        binding.resendOtp.setOnClickListener {
+            if(viewModel.canResendOtp) {
+                sendOtp()
+            }
+        }
+        viewModel.resendTextLiveData.observe(viewLifecycleOwner, Observer {
+            binding.resendOtp.text = it
+        })
         binding.verifyBtn.setOnClickListener {
             verifyOtp(
                 binding.otpTextEdit.text.toString()
@@ -52,23 +61,32 @@ class ChangePasswordOtpFragment : Fragment() {
         binding.verifyBtn.visibility = state
     }
 
+    private fun hideProgressBar(){
+        binding.progressBar.visibility = View.GONE
+    }
+    private fun showProgressBar(){
+        binding.progressBar.visibility = View.VISIBLE
+    }
     private fun sendOtp(){
         verifyButtonState.postValue(false)
+        showProgressBar()
         viewModel.sendOtp(
             viewModel.getEmail()
         ){ success, message ->
             verifyButtonState.postValue(success)
+            hideProgressBar()
             showSnackbar(message)
         }
     }
-
     private fun verifyOtp(userOtp: String){
         verifyButtonState.postValue(false)
+        showProgressBar()
         viewModel.verifyOtp(
             viewModel.getEmail(),
             userOtp
         ){success, message ->
             showSnackbar(message)
+            hideProgressBar()
             if(success){
                 nextScreen()
             }

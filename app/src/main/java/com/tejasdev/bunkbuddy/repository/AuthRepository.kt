@@ -1,9 +1,12 @@
 package com.tejasdev.bunkbuddy.repository
 
+import android.os.Bundle
 import android.util.Log
 import com.google.gson.Gson
 import com.tejasdev.bunkbuddy.api.AuthAPI
+import com.tejasdev.bunkbuddy.datamodel.DataUploadPacket
 import com.tejasdev.bunkbuddy.datamodel.MessageResponse
+import com.tejasdev.bunkbuddy.datamodel.Subject
 import com.tejasdev.bunkbuddy.datamodel.User
 import retrofit2.Call
 import retrofit2.Callback
@@ -13,6 +16,49 @@ import javax.inject.Inject
 class AuthRepository @Inject constructor(
     private val api: AuthAPI
 ){
+    fun uploadData(packet: DataUploadPacket, callback: (Boolean, String)->Unit){
+        val call = api.backupData(packet)
+        call.enqueue(object: Callback<MessageResponse>{
+            override fun onResponse(
+                call: Call<MessageResponse>,
+                response: Response<MessageResponse>
+            ) {
+                val res = response.body()
+                if(response.isSuccessful){
+                    callback(true, res?.message?:"Successfully uploaded data")
+                }
+                else callback(false, "Something went wrong!")
+            }
+
+            override fun onFailure(call: Call<MessageResponse>, t: Throwable) {
+                callback(false, "Something went wrong")
+            }
+
+        })
+    }
+    fun fetchData(email: String, callback: (Boolean, List<Subject>?)->Unit){
+         val call = api.fetchBackedUpData(
+             hashMapOf(
+                 "email" to email
+             )
+         )
+        call.enqueue(object: Callback<List<Subject>>{
+            override fun onResponse(call: Call<List<Subject>>, response: Response<List<Subject>>) {
+                if(response.isSuccessful){
+                    val list = response.body()
+                    callback(true, list)
+                }
+                else{
+                    callback(false, null)
+                }
+            }
+
+            override fun onFailure(call: Call<List<Subject>>, t: Throwable) {
+                callback(false, null)
+            }
+
+        })
+    }
     fun login(email: String, password: String, callback: (User?, String?)-> Unit){
         val call = api.loginUser(email, password)
 

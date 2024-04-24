@@ -29,6 +29,11 @@ interface SubjectDao {
     fun updateSubject(subject: Subject)
     @Delete
     suspend fun deleteSubject(subject: Subject)
+    @Query("SELECT SUM(attended) FROM subjects")
+    fun getTotalAttendedClasses(): LiveData<Int>
+
+    @Query("SELECT SUM(missed) FROM subjects")
+    fun getTotalMissedClasses(): LiveData<Int>
 
     @Transaction
     suspend fun updateSubjectAndLectures(subject: Subject, lectures: List<Lecture>){

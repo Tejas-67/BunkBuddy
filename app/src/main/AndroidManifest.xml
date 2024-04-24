@@ -20,6 +20,17 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="tiramisu">
 
+        <provider
+            android:authorities="com.tejasdev.bunkbuddy.androidx-startup"
+            android:name="androidx.startup.InitializationProvider"
+            android:exported="false"
+            tools:node="merge">
+            <meta-data
+                android:name="androidx.work.WorkManagerInitializer"
+                android:value="androidx.startup"
+                tools:node="remove"/>
+        </provider>
+
         <receiver
             android:name=".widget.NewAppWidget"
             android:exported="false">

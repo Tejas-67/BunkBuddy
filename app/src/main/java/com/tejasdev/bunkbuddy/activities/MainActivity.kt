@@ -22,9 +22,18 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.GravityCompat
+import androidx.lifecycle.Observer
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
+import androidx.work.BackoffPolicy
+import androidx.work.Constraints
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.NetworkType
+import androidx.work.PeriodicWorkRequest
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkInfo
+import androidx.work.WorkManager
 import com.bumptech.glide.Glide
 import com.google.android.material.snackbar.Snackbar
 import com.tejasdev.bunkbuddy.alarm.AlarmReceiver
@@ -32,6 +41,7 @@ import com.tejasdev.bunkbuddy.R
 import com.tejasdev.bunkbuddy.UI.AlarmViewModel
 import com.tejasdev.bunkbuddy.UI.AuthViewModel
 import com.tejasdev.bunkbuddy.UI.SubjectViewModel
+import com.tejasdev.bunkbuddy.backup.BackupWorker
 import com.tejasdev.bunkbuddy.databinding.ActivityMainBinding
 import com.tejasdev.bunkbuddy.datamodel.HistoryItem
 import com.tejasdev.bunkbuddy.datamodel.Lecture
@@ -41,6 +51,8 @@ import dagger.hilt.android.AndroidEntryPoint
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
+import java.util.concurrent.TimeUnit
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
@@ -49,6 +61,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var navController: NavController
     private lateinit var sharedPref: SharedPreferences
     private lateinit var editor: SharedPreferences.Editor
+    @Inject lateinit var workManager: WorkManager
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         _binding = ActivityMainBinding.inflate(layoutInflater)
@@ -60,12 +73,42 @@ class MainActivity : AppCompatActivity() {
         sharedPref = this.getSharedPreferences(SHARED_PREF, Context.MODE_PRIVATE)
         editor = sharedPref.edit()
         setUpTheme()
+        scheduleBackup()
         navController.addOnDestinationChangedListener{_, destination, _ ->
             when(destination.id){
                 R.id.allSubjectsFragment, R.id.timetableFragment, R.id.profileFragment -> showBottomNav()
                 else -> hideBottomNav()
             }
         }
+    }
+
+    private fun scheduleBackup() {
+        val constraints = Constraints.Builder()
+            .setRequiredNetworkType(NetworkType.CONNECTED)
+            .build()
+        val repeatInterval = 1
+        val workRequest = PeriodicWorkRequestBuilder<BackupWorker>(
+            repeatInterval.toLong(), TimeUnit.DAYS
+        )
+            .setBackoffCriteria(
+                BackoffPolicy.LINEAR,
+                PeriodicWorkRequest.MIN_PERIODIC_INTERVAL_MILLIS,
+                TimeUnit.MILLISECONDS
+            )
+            .setConstraints(constraints)
+            .build()
+
+        workManager.enqueueUniquePeriodicWork(
+            AUTOMATIC_BACKUP_WORK,
+            ExistingPeriodicWorkPolicy.KEEP,
+            workRequest
+        )
+        workManager.getWorkInfoByIdLiveData(workRequest.id)
+            .observe(this, Observer { workInfo->
+                if(workInfo!=null && workInfo.state == WorkInfo.State.SUCCEEDED){
+                    Log.w("workmanager-backup", "upload done")
+                }
+            })
     }
 
     override fun onBackPressed() {
@@ -93,5 +136,6 @@ class MainActivity : AppCompatActivity() {
         const val SHARED_PREF = "BunkBuddySharedPref"
         const val DARK_THEME = "dark_theme"
         const val NOTIFICATION_ENABLED = "notification_enabled"
+        const val AUTOMATIC_BACKUP_WORK = "automatic_backup_work"
     }
 }

@@ -1,6 +1,9 @@
 package com.tejasdev.bunkbuddy.api
 
+import android.os.Bundle
+import com.tejasdev.bunkbuddy.datamodel.DataUploadPacket
 import com.tejasdev.bunkbuddy.datamodel.MessageResponse
+import com.tejasdev.bunkbuddy.datamodel.Subject
 import com.tejasdev.bunkbuddy.datamodel.User
 import retrofit2.Call
 import retrofit2.http.Body
@@ -61,4 +64,14 @@ interface AuthAPI {
     fun verifyOtp(
         @Body map: HashMap<String, String>
     ): Call<MessageResponse>
+
+    @POST("/backup/upload")
+    fun backupData(
+        @Body packet: DataUploadPacket
+    ): Call<MessageResponse>
+
+    @POST("/backup/fetch")
+    fun fetchBackedUpData(
+        @Body map: HashMap<String, String>
+    ): Call<List<Subject>>
 }

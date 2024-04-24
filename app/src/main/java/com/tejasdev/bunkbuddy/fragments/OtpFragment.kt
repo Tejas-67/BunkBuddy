@@ -5,6 +5,7 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.opengl.Visibility
 import android.os.Bundle
+import android.provider.Settings
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -48,10 +49,16 @@ class OtpFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         sharedPref = requireContext().getSharedPreferences(AuthActivity.SHARED_PREFERENCE, Context.MODE_PRIVATE)
         editor = sharedPref.edit()
+        if(viewModel.lastOtpTimeStamp==null || viewModel.lastOtpTimeStamp!! + 5*1000*60<=System.currentTimeMillis()) sendOtp()
         verifyButtonState.observe(viewLifecycleOwner, Observer {
             changeVerifyButtonState(it)
         })
-        sendOtp()
+        binding.resendOtp.setOnClickListener {
+            if(viewModel.canResendOtp) sendOtp()
+        }
+        viewModel.resendTextLiveData.observe(viewLifecycleOwner, Observer {
+            binding.resendOtp.text = it
+        })
         binding.verifyBtn.setOnClickListener {
             verifyOtp(
                 binding.otpTextEdit.text.toString()
@@ -65,22 +72,35 @@ class OtpFragment : Fragment() {
         binding.verifyBtn.visibility = state
     }
 
+    private fun showProgressBar(){
+        binding.progressBar.visibility = View.VISIBLE
+        binding.verifyBtn.visibility = View.GONE
+    }
+    private fun hideProgressBar(){
+        binding.progressBar.visibility = View.GONE
+        binding.verifyBtn.visibility = View.VISIBLE
+    }
+
     private fun sendOtp(){
+        showProgressBar()
         verifyButtonState.postValue(false)
         viewModel.sendOtp(
             viewModel.getEmail()
         ){ success, message ->
+            hideProgressBar()
             verifyButtonState.postValue(success)
             showSnackbar(message)
         }
     }
 
     private fun verifyOtp(userOtp: String){
+        showProgressBar()
         verifyButtonState.postValue(false)
         viewModel.verifyOtp(
             viewModel.getEmail(),
             userOtp
         ){success, message ->
+            hideProgressBar()
             showSnackbar(message)
             if(success){
                 nextScreen()

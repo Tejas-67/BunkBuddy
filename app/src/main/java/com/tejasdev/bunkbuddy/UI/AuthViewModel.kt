@@ -10,11 +10,18 @@ import android.provider.ContactsContract
 import android.util.Log
 
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
+import com.tejasdev.bunkbuddy.datamodel.DataUploadPacket
+import com.tejasdev.bunkbuddy.datamodel.Subject
 import com.tejasdev.bunkbuddy.datamodel.User
 import com.tejasdev.bunkbuddy.repository.AuthRepository
 import com.tejasdev.bunkbuddy.session.Session
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -55,6 +62,17 @@ class AuthViewModel @Inject constructor(
     fun signOut(){
        session.signOut()
     }
+    fun fetchData(email: String, callback:(Boolean, List<Subject>?) -> Unit){
+        repo.fetchData(email){success, data ->
+            callback(success, data)
+        }
+    }
+
+    fun uploadData(packet: DataUploadPacket, callback: (Boolean, String)->Unit){
+        repo.uploadData(packet){ success, message ->
+            callback(success, message)
+        }
+    }
     fun signupUser(email: String, name: String, password: String, image: String, callback: (User?, String?)->Unit){
         repo.signup(name, email, password, image){user, message ->
             callback(user, message)
@@ -79,14 +97,42 @@ class AuthViewModel @Inject constructor(
         }
     }
 
+    var lastOtpTimeStamp: Long? = null
+    private var resendJob: Job? = null
+    val resendTextLiveData = MutableLiveData("")
+    var canResendOtp: Boolean = false
+
+    private fun startResendTimer(){
+        resendJob?.cancel()
+        resendJob = viewModelScope.launch {
+            canResendOtp = false
+            for(i in 60 downTo 1){
+                resendTextLiveData.postValue("Resend Otp in $i seconds")
+                delay(1000)
+            }
+            resendTextLiveData.postValue("Resend Otp")
+            canResendOtp = true
+        }
+    }
+
     fun sendOtp(email: String, callback:(Boolean, String)->Unit){
         repo.sendOtp(email){ success, message ->
+            if(success) {
+                lastOtpTimeStamp = System.currentTimeMillis()
+                startResendTimer()
+            }
             callback(success, message)
         }
     }
     fun verifyOtp(email: String, otp: String, callback:(Boolean, String)->Unit){
         repo.verifyOtp(email, otp){ success, message ->
-            if(success) markUserVerified()
+            if(success) {
+                markUserVerified()
+                lastOtpTimeStamp = null
+                resendJob = null
+                resendTextLiveData.postValue("")
+                canResendOtp = false
+            }
             callback(success, message)
         }
     }

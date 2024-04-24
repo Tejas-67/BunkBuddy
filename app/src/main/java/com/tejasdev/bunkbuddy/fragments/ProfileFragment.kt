@@ -61,7 +61,7 @@ class ProfileFragment : Fragment() {
         }
 
         binding.aboutLl.setOnClickListener {
-
+            //
         }
 
         binding.settingsLl.setOnClickListener {

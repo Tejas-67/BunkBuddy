@@ -3,6 +3,7 @@ package com.tejasdev.bunkbuddy.fragments
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.util.Log
 import android.view.Gravity
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -22,6 +23,7 @@ import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.github.mikephil.charting.data.PieEntry
 import com.tejasdev.bunkbuddy.R
 import com.tejasdev.bunkbuddy.UI.SubjectViewModel
 import com.tejasdev.bunkbuddy.activities.MainActivity
@@ -30,6 +32,8 @@ import com.tejasdev.bunkbuddy.datamodel.Subject
 import com.tejasdev.bunkbuddy.util.adapters.SubjectAdapter
 import com.tejasdev.bunkbuddy.util.listeners.SubjectItemClickListener
 import com.google.android.material.snackbar.Snackbar
+import com.tejasdev.bunkbuddy.UI.AuthViewModel
+import com.tejasdev.bunkbuddy.datamodel.DataUploadPacket
 import com.tejasdev.bunkbuddy.datamodel.HistoryItem
 import com.tejasdev.bunkbuddy.util.constants.CLASS_ATTENDED_DEC
 import com.tejasdev.bunkbuddy.util.constants.CLASS_ATTENDED_INC
@@ -54,6 +58,7 @@ class AllSubjectsFragment : Fragment(), SubjectItemClickListener {
     private lateinit var adapter: SubjectAdapter
     private lateinit var sharedPreference: SharedPreferences
     private lateinit var editor: SharedPreferences.Editor
+    private val authViewModel: AuthViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -221,8 +226,8 @@ class AllSubjectsFragment : Fragment(), SubjectItemClickListener {
             requirement.postValue(it.requirement)
             addBtnState.postValue(true)
             subjectNameEdtxt.setText(it.name)
-        }
 
+        }
 
         addBtnState.observe(viewLifecycleOwner, Observer {
             addBtn.isEnabled = it

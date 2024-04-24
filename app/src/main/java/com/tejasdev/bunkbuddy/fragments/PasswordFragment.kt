@@ -45,7 +45,9 @@ class PasswordFragment : Fragment() {
     }
 
     private fun changePassword(newPass: String) {
+        showProgressBar()
         viewModel.changeUserPassword(newPass){ user, message ->
+            hideProgressBar()
             if(user==null){
                 showSnackbar(requireView(), "Something went wrong")
             }
@@ -56,6 +58,15 @@ class PasswordFragment : Fragment() {
         }
     }
 
+    private fun showProgressBar(){
+        binding.progressBar.visibility = View.VISIBLE
+        binding.verifyBtn.visibility = View.GONE
+    }
+
+    private fun hideProgressBar(){
+        binding.progressBar.visibility = View.GONE
+        binding.verifyBtn.visibility = View.VISIBLE
+    }
     private fun showSnackbar(view: View, message: String){
         Snackbar.make(view, message, 2000).show()
     }
