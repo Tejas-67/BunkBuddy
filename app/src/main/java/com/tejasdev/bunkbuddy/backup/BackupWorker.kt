@@ -29,6 +29,7 @@ class BackupWorker @AssistedInject constructor(
         return withContext(Dispatchers.IO){
             try{
                 val subjects = viewModel.getAllSubjectSync()
+                if(subjects.isEmpty()) Result.success()
                 val packet = DataUploadPacket(
                     email = authViewModel.getEmail(),
                     latestSubjects = subjects

@@ -43,6 +43,9 @@ class SubjectViewModel @Inject constructor(
         }
 
 
+    fun clearDatabases(){
+        repository.clearDatabases()
+    }
     fun addHistory(history: HistoryItem){
         viewModelScope.launch {
             repository.addHistoryItem(history)

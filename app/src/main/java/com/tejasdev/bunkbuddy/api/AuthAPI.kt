@@ -1,9 +1,8 @@
 package com.tejasdev.bunkbuddy.api
 
-import android.os.Bundle
 import com.tejasdev.bunkbuddy.datamodel.DataUploadPacket
+import com.tejasdev.bunkbuddy.datamodel.DownloadData
 import com.tejasdev.bunkbuddy.datamodel.MessageResponse
-import com.tejasdev.bunkbuddy.datamodel.Subject
 import com.tejasdev.bunkbuddy.datamodel.User
 import retrofit2.Call
 import retrofit2.http.Body
@@ -73,5 +72,5 @@ interface AuthAPI {
     @POST("/backup/fetch")
     fun fetchBackedUpData(
         @Body map: HashMap<String, String>
-    ): Call<List<Subject>>
+    ): Call<DownloadData>
 }

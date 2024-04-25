@@ -1,10 +1,10 @@
 package com.tejasdev.bunkbuddy.repository
 
-import android.os.Bundle
 import android.util.Log
 import com.google.gson.Gson
 import com.tejasdev.bunkbuddy.api.AuthAPI
 import com.tejasdev.bunkbuddy.datamodel.DataUploadPacket
+import com.tejasdev.bunkbuddy.datamodel.DownloadData
 import com.tejasdev.bunkbuddy.datamodel.MessageResponse
 import com.tejasdev.bunkbuddy.datamodel.Subject
 import com.tejasdev.bunkbuddy.datamodel.User
@@ -42,18 +42,22 @@ class AuthRepository @Inject constructor(
                  "email" to email
              )
          )
-        call.enqueue(object: Callback<List<Subject>>{
-            override fun onResponse(call: Call<List<Subject>>, response: Response<List<Subject>>) {
+        call.enqueue(object: Callback<DownloadData>{
+            override fun onResponse(call: Call<DownloadData>, response: Response<DownloadData>) {
                 if(response.isSuccessful){
-                    val list = response.body()
-                    callback(true, list)
+                    Log.w("backup", "resonse: $response")
+                    val body = response.body()
+                    Log.w("backup", "repo: $body")
+                    callback(true, body)
                 }
                 else{
+                    Log.w("backup", "res: ${response.body()} : ${response.message()}")
                     callback(false, null)
                 }
             }
 
-            override fun onFailure(call: Call<List<Subject>>, t: Throwable) {
+            override fun onFailure(call: Call<DownloadData>, t: Throwable) {
+                Log.w("backup", "t: ${t.message}")
                 callback(false, null)
             }
 

@@ -13,6 +13,7 @@ import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.tejasdev.bunkbuddy.R
 import com.tejasdev.bunkbuddy.UI.AuthViewModel
+import com.tejasdev.bunkbuddy.UI.SubjectViewModel
 import com.tejasdev.bunkbuddy.activities.AuthActivity
 import com.tejasdev.bunkbuddy.activities.MainActivity
 import com.tejasdev.bunkbuddy.databinding.FragmentProfileBinding
@@ -24,6 +25,7 @@ class ProfileFragment : Fragment() {
     private var _binding: FragmentProfileBinding? = null
     private val binding get() = _binding!!
     private val viewModel: AuthViewModel by viewModels()
+    private val subjectViewModel: SubjectViewModel by viewModels()
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -77,8 +79,10 @@ class ProfileFragment : Fragment() {
 
     private fun signOut() {
         viewModel.signOut()
+        subjectViewModel.clearDatabases()
         val intent = Intent(activity, AuthActivity::class.java)
         startActivity(intent)
+        activity?.finish()
     }
 
 }

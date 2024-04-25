@@ -1,27 +1,12 @@
 package com.tejasdev.bunkbuddy.activities
 
-import android.app.Activity
-import android.app.NotificationChannel
-import android.app.NotificationManager
 import android.content.Context
-import android.content.Intent
 import android.content.SharedPreferences
-import android.content.pm.PackageManager
-import android.net.Uri
-import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.provider.Settings
 import android.util.Log
-import android.view.GestureDetector
-import android.view.MotionEvent
 import android.view.View
-import android.widget.Toast
-import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.core.app.NotificationManagerCompat
-import androidx.core.content.res.ResourcesCompat
-import androidx.core.view.GravityCompat
 import androidx.lifecycle.Observer
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
@@ -34,23 +19,14 @@ import androidx.work.PeriodicWorkRequest
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
-import com.bumptech.glide.Glide
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
-import com.tejasdev.bunkbuddy.alarm.AlarmReceiver
 import com.tejasdev.bunkbuddy.R
-import com.tejasdev.bunkbuddy.UI.AlarmViewModel
 import com.tejasdev.bunkbuddy.UI.AuthViewModel
 import com.tejasdev.bunkbuddy.UI.SubjectViewModel
 import com.tejasdev.bunkbuddy.backup.BackupWorker
 import com.tejasdev.bunkbuddy.databinding.ActivityMainBinding
-import com.tejasdev.bunkbuddy.datamodel.HistoryItem
-import com.tejasdev.bunkbuddy.datamodel.Lecture
-import com.tejasdev.bunkbuddy.util.constants.ALERTS_OFF
-import com.tejasdev.bunkbuddy.util.constants.ALERTS_ON
 import dagger.hilt.android.AndroidEntryPoint
-import java.text.SimpleDateFormat
-import java.util.Calendar
-import java.util.Locale
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
@@ -62,6 +38,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var sharedPref: SharedPreferences
     private lateinit var editor: SharedPreferences.Editor
     @Inject lateinit var workManager: WorkManager
+    @Inject lateinit var authViewModel: AuthViewModel
+    @Inject lateinit var viewModel: SubjectViewModel
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         _binding = ActivityMainBinding.inflate(layoutInflater)
@@ -73,7 +51,7 @@ class MainActivity : AppCompatActivity() {
         sharedPref = this.getSharedPreferences(SHARED_PREF, Context.MODE_PRIVATE)
         editor = sharedPref.edit()
         setUpTheme()
-        scheduleBackup()
+        makeBackupDataDecision()
         navController.addOnDestinationChangedListener{_, destination, _ ->
             when(destination.id){
                 R.id.allSubjectsFragment, R.id.timetableFragment, R.id.profileFragment -> showBottomNav()
@@ -82,7 +60,56 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+
+    private fun makeBackupDataDecision(){
+        Log.w("backup", authViewModel.isBackedUpDataFetched().toString())
+        if(authViewModel.isAutomaticBackupOn() && authViewModel.isBackedUpDataFetched()){
+            scheduleBackup()
+        }
+        else if(!authViewModel.ifDataRestoreAlertShown()){
+            authViewModel.markDataRestoreAlertShown()
+            startDataRestore()
+        }
+    }
+
+    private fun startDataRestore() {
+        Log.w("backup", "showing dialog")
+        val dialog = MaterialAlertDialogBuilder(this)
+            .setTitle("Restore Previous Data")
+            .setMessage("Would you like to restore you previous data from our servers?\n\nIf you prefer to restore later, you can go to settings and manually restore the data.")
+            .setPositiveButton("Restore") {dialog, which ->
+                restoreData()
+                dialog.dismiss()
+            }
+            .setNegativeButton("Later") {dialog, which->
+                dialog.dismiss()
+            }
+            .setCancelable(false)
+            .create()
+        dialog.show()
+    }
+
+    private fun restoreData(){
+        authViewModel.fetchData(authViewModel.getEmail()){ success, data ->
+            if(success){
+                Log.w("backup", data.toString())
+                authViewModel.markBackupDataFetched()
+                for(subject in data!!){
+                    viewModel.addSubject(subject)
+                }
+                showSnackbar("Data restored successfully")
+            }else{
+                showSnackbar("Something went wrong")
+            }
+        }
+    }
+
+    private fun showSnackbar(message: String){
+        val root = findViewById<View>(android.R.id.content)
+        Snackbar.make(root, message, 2000).show()
+    }
     private fun scheduleBackup() {
+        if(!authViewModel.isAutomaticBackupOn()) return
         val constraints = Constraints.Builder()
             .setRequiredNetworkType(NetworkType.CONNECTED)
             .build()

@@ -18,14 +18,19 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.app.NotificationManagerCompat
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
+import com.google.android.material.snackbar.Snackbar
 import com.tejasdev.bunkbuddy.R
 import com.tejasdev.bunkbuddy.UI.AlarmViewModel
+import com.tejasdev.bunkbuddy.UI.AuthViewModel
 import com.tejasdev.bunkbuddy.UI.SubjectViewModel
 import com.tejasdev.bunkbuddy.activities.MainActivity
 import com.tejasdev.bunkbuddy.alarm.AlarmReceiver
 import com.tejasdev.bunkbuddy.databinding.FragmentSettingsBinding
 import com.tejasdev.bunkbuddy.datamodel.Lecture
+import com.tejasdev.bunkbuddy.datamodel.Subject
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -34,6 +39,7 @@ class SettingsFragment : Fragment() {
     private val binding get() = _binding!!
     val viewModel: SubjectViewModel by viewModels()
     val alarmViewModel: AlarmViewModel by viewModels()
+    val authViewModel: AuthViewModel by viewModels()
     private lateinit var sharedPref: SharedPreferences
     private lateinit var editor: SharedPreferences.Editor
     private var isNotificationEnabled: Boolean = false
@@ -57,8 +63,12 @@ class SettingsFragment : Fragment() {
         isNotificationEnabled = sharedPref.getBoolean(MainActivity.NOTIFICATION_ENABLED, false)
         binding.alertsSwitch.isChecked = isNotificationEnabled
         binding.themeSwitch.isChecked = sharedPref.getBoolean(MainActivity.DARK_THEME, true)
+        binding.backupSwitch.isChecked = authViewModel.isAutomaticBackupOn()
         binding.themeSwitch.setOnCheckedChangeListener { _, isChecked ->
             changeTheme(isChecked)
+        }
+        binding.backupSwitch.setOnCheckedChangeListener { _, _ ->
+            authViewModel.toggleAutomaticBackupState()
         }
         binding.alertsSwitch.setOnCheckedChangeListener { _, isChecked ->
             if(isChecked) scheduleAlarms()
@@ -74,6 +84,35 @@ class SettingsFragment : Fragment() {
         binding.changePasswordLl.setOnClickListener {
             findNavController().navigate(R.id.action_settingsFragment_to_changePasswordFragment)
         }
+        binding.restoreDataCard.setOnClickListener {
+            authViewModel.fetchData(authViewModel.getEmail()){ success, data ->
+                if(success){
+                    data?.let{addDataToDatabase(data)}
+                    showSnackbar("Data restored successfully")
+                }
+                else{
+                    showSnackbar("Something went wrong")
+                }
+            }
+        }
+        authViewModel.dataRestoreServiceRunning.observe(viewLifecycleOwner, Observer {
+            updateDataRestoreProgressBar(it)
+        })
+    }
+
+    private fun addDataToDatabase(data: List<Subject>) {
+        for(subject in data){
+            viewModel.addSubject(subject)
+        }
+    }
+
+    private fun showSnackbar(message: String){
+        Snackbar.make(requireView(), message, 2000).show()
+    }
+
+    private fun updateDataRestoreProgressBar(isRestoring: Boolean){
+        val state = if(isRestoring) View.VISIBLE else View.GONE
+        binding.restoreDataProgress.visibility = state
     }
     private fun scheduleAlarms() {
         checkNotificationSettings()

@@ -23,6 +23,12 @@ class SubjectRepository @Inject constructor(
     override suspend fun updateSubjectAndLectures(subject: Subject){
         dao.updateSubjectAndRelatedLectures(subject)
     }
+
+    override fun clearDatabases() {
+        dao.clearLectureDatabase()
+        dao.clearSubjectDatabase()
+    }
+
     override fun getSubjectSync(): List<Subject>{
         return dao.getAllSubjectsSync()
     }

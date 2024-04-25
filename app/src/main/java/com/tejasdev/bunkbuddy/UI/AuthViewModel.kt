@@ -30,15 +30,29 @@ class AuthViewModel @Inject constructor(
     private val repo: AuthRepository
 ): AndroidViewModel(app) {
 
-    private val session = Session.getInstance(app.applicationContext)
-
     fun updateImage(image: String){
         session.updateUserImage(image)
     }
+
+    private val session = Session.getInstance(app.applicationContext)
+    private val _dataRestoreServiceRunning = MutableLiveData(false)
+    private val _dataUploadServiceRunning = MutableLiveData(false)
+
+    val dataRestoreServiceRunning get() = _dataRestoreServiceRunning
+    val dataUploadServiceRunning get() = _dataUploadServiceRunning
     fun updatePassword(newPass: String) = session.updatePassword(newPass)
     fun getPassword(): String = session.getPassword()
     fun updateUserName(username: String) {
         session.updateUserName(username)
+    }
+
+    fun isAutomaticBackupOn(): Boolean = session.isDataBackupOn()
+    fun toggleAutomaticBackupState(){
+        session.toggleAutomaticBackupState()
+    }
+    fun ifDataRestoreAlertShown(): Boolean = session.ifDataRestoreAlertShown()
+    fun markDataRestoreAlertShown(){
+        session.markDataRestoreAlertShown()
     }
 
     fun isLogin():Boolean = session.isLogin()
@@ -57,19 +71,27 @@ class AuthViewModel @Inject constructor(
             callback(user, message)
         }
     }
+    fun markBackupDataFetched(){
+        session.markBackupDataFetched()
+    }
+    fun isBackedUpDataFetched(): Boolean = session.isBackedUpDataFetched()
     fun isVerified(): Boolean = session.isVerified()
     fun markUserVerified() = session.changeUserToVerified()
     fun signOut(){
        session.signOut()
     }
     fun fetchData(email: String, callback:(Boolean, List<Subject>?) -> Unit){
+        _dataRestoreServiceRunning.postValue(true)
         repo.fetchData(email){success, data ->
+            _dataRestoreServiceRunning.postValue(false)
             callback(success, data)
         }
     }
 
     fun uploadData(packet: DataUploadPacket, callback: (Boolean, String)->Unit){
+        _dataUploadServiceRunning.postValue(true)
         repo.uploadData(packet){ success, message ->
+            _dataUploadServiceRunning.postValue(false)
             callback(success, message)
         }
     }

@@ -17,9 +17,18 @@ class Session private constructor(context: Context){
         return sharedPref.getBoolean(IS_LOGIN, false)
     }
     fun getPassword(): String = sharedPref.getString(PASSWORD, "")!!
-    fun getUserId(): String{
-        return sharedPref.getString(USER_ID, "")?: ""
+
+    fun markBackupDataFetched() {
+        editor.putBoolean(DATA_BACKED_UP, true)
+        editor.apply()
     }
+
+    fun ifDataRestoreAlertShown(): Boolean = sharedPref.getBoolean(SHOWED_DATA_RESTORE_ALERT, false)
+    fun markDataRestoreAlertShown(){
+        editor.putBoolean(SHOWED_DATA_RESTORE_ALERT, true)
+        editor.apply()
+    }
+    fun isBackedUpDataFetched(): Boolean = sharedPref.getBoolean(DATA_BACKED_UP, false)
 
     fun createSession(
         username: String,
@@ -36,6 +45,14 @@ class Session private constructor(context: Context){
         editor.putString(USER_ID, userId)
         editor.putString(PASSWORD, password)
         editor.putBoolean(IS_VERIFIED, isVerified)
+        editor.putBoolean(AUTOMATIC_DATA_BACKUP_ON, true)
+        editor.apply()
+    }
+    fun isDataBackupOn(): Boolean = sharedPref.getBoolean(AUTOMATIC_DATA_BACKUP_ON, true)
+
+    fun toggleAutomaticBackupState(){
+        val currentState = isDataBackupOn()
+        editor.putBoolean(AUTOMATIC_DATA_BACKUP_ON, !currentState)
         editor.apply()
     }
 
@@ -91,5 +108,9 @@ class Session private constructor(context: Context){
         const val IMAGE = "image"
         const val PASSWORD = "password"
         const val IS_VERIFIED = "is_verified"
+        const val DATA_BACKED_UP = "data_backed_up"
+        const val AUTOMATIC_DATA_BACKUP_ON = "automatic_data_backup_on"
+        const val SHOWED_DATA_RESTORE_ALERT = "showed_data_restore_alert"
+
     }
 }

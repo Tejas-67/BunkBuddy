@@ -12,6 +12,8 @@ interface SubjectRepositoryInterface {
     fun getTotalMissedClasses(): LiveData<Int>
     fun getTotalAttendedClasses(): LiveData<Int>
 
+    fun clearDatabases()
+
     fun getSubjectSync(): List<Subject>
 
     suspend fun addSubject(subject: Subject)
