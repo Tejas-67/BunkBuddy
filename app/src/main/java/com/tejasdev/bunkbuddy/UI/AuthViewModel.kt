@@ -13,10 +13,12 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.tejasdev.bunkbuddy.datamodel.DataUploadPacket
+import com.tejasdev.bunkbuddy.datamodel.DownloadData
 import com.tejasdev.bunkbuddy.datamodel.Subject
 import com.tejasdev.bunkbuddy.datamodel.User
 import com.tejasdev.bunkbuddy.repository.AuthRepository
 import com.tejasdev.bunkbuddy.session.Session
+import com.tejasdev.bunkbuddy.util.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Job
@@ -35,15 +37,24 @@ class AuthViewModel @Inject constructor(
     }
 
     private val session = Session.getInstance(app.applicationContext)
-    private val _dataRestoreServiceRunning = MutableLiveData(false)
     private val _dataUploadServiceRunning = MutableLiveData(false)
-
-    val dataRestoreServiceRunning get() = _dataRestoreServiceRunning
+    private val _backedUpData = MutableLiveData<Resource<DownloadData>>()
+    val backedUpData get() = _backedUpData
     val dataUploadServiceRunning get() = _dataUploadServiceRunning
     fun updatePassword(newPass: String) = session.updatePassword(newPass)
     fun getPassword(): String = session.getPassword()
     fun updateUserName(username: String) {
         session.updateUserName(username)
+    }
+
+    fun restoreData(){
+        _backedUpData.postValue(Resource.Loading())
+        viewModelScope.launch {
+            repo.fetchData(getEmail()){ success, data ->
+                if(success) _backedUpData.postValue(Resource.Success(data))
+                else _backedUpData.postValue(Resource.Error(message = "Something went wrong!"))
+            }
+        }
     }
 
     fun isAutomaticBackupOn(): Boolean = session.isDataBackupOn()
@@ -79,13 +90,6 @@ class AuthViewModel @Inject constructor(
     fun markUserVerified() = session.changeUserToVerified()
     fun signOut(){
        session.signOut()
-    }
-    fun fetchData(email: String, callback:(Boolean, List<Subject>?) -> Unit){
-        _dataRestoreServiceRunning.postValue(true)
-        repo.fetchData(email){success, data ->
-            _dataRestoreServiceRunning.postValue(false)
-            callback(success, data)
-        }
     }
 
     fun uploadData(packet: DataUploadPacket, callback: (Boolean, String)->Unit){

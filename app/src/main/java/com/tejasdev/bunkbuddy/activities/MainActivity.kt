@@ -26,6 +26,7 @@ import com.tejasdev.bunkbuddy.UI.AuthViewModel
 import com.tejasdev.bunkbuddy.UI.SubjectViewModel
 import com.tejasdev.bunkbuddy.backup.BackupWorker
 import com.tejasdev.bunkbuddy.databinding.ActivityMainBinding
+import com.tejasdev.bunkbuddy.util.Resource
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -90,18 +91,22 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun restoreData(){
-        authViewModel.fetchData(authViewModel.getEmail()){ success, data ->
-            if(success){
-                Log.w("backup", data.toString())
-                authViewModel.markBackupDataFetched()
-                for(subject in data!!){
-                    viewModel.addSubject(subject)
+        authViewModel.restoreData()
+        authViewModel.backedUpData.observe(this, Observer {
+            when(it){
+                is Resource.Success -> {
+                    authViewModel.markBackupDataFetched()
+                    it.data?.forEach{
+                        viewModel.addSubject(it)
+                    }
+                    showSnackbar("Data restored successfully")
                 }
-                showSnackbar("Data restored successfully")
-            }else{
-                showSnackbar("Something went wrong")
+                is  Resource.Error -> {
+                    showSnackbar("Something went wrong")
+                }
+                else -> {}
             }
-        }
+        })
     }
 
     private fun showSnackbar(message: String){

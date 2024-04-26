@@ -31,6 +31,7 @@ import com.tejasdev.bunkbuddy.alarm.AlarmReceiver
 import com.tejasdev.bunkbuddy.databinding.FragmentSettingsBinding
 import com.tejasdev.bunkbuddy.datamodel.Lecture
 import com.tejasdev.bunkbuddy.datamodel.Subject
+import com.tejasdev.bunkbuddy.util.Resource
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -85,18 +86,21 @@ class SettingsFragment : Fragment() {
             findNavController().navigate(R.id.action_settingsFragment_to_changePasswordFragment)
         }
         binding.restoreDataCard.setOnClickListener {
-            authViewModel.fetchData(authViewModel.getEmail()){ success, data ->
-                if(success){
-                    data?.let{addDataToDatabase(data)}
+            authViewModel.restoreData()
+        }
+        authViewModel.backedUpData.observe(viewLifecycleOwner, Observer{
+            when(it){
+                is Resource.Loading -> updateDataRestoreProgressBar(true)
+                is Resource.Success -> {
+                    addDataToDatabase(it.data!!)
+                    updateDataRestoreProgressBar(false)
                     showSnackbar("Data restored successfully")
                 }
-                else{
-                    showSnackbar("Something went wrong")
+                else -> {
+                    updateDataRestoreProgressBar(false)
+                    showSnackbar(it.message!!)
                 }
             }
-        }
-        authViewModel.dataRestoreServiceRunning.observe(viewLifecycleOwner, Observer {
-            updateDataRestoreProgressBar(it)
         })
     }
 

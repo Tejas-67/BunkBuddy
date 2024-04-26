@@ -11,6 +11,7 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.tejasdev.bunkbuddy.R
 import com.tejasdev.bunkbuddy.UI.AuthViewModel
 import com.tejasdev.bunkbuddy.UI.SubjectViewModel
@@ -50,12 +51,13 @@ class ProfileFragment : Fragment() {
             .load(viewModel.getUserImage())
             .error(R.drawable.default_profile)
             .into(binding.userImage)
+
         binding.editProfileLl.setOnClickListener {
             findNavController().navigate(R.id.action_profileFragment_to_editProfileFragment)
         }
 
         binding.logoutLl.setOnClickListener {
-            signOut()
+            showAlert()
         }
 
         binding.privacyLl.setOnClickListener {
@@ -69,6 +71,22 @@ class ProfileFragment : Fragment() {
         binding.settingsLl.setOnClickListener {
             findNavController().navigate(R.id.action_profileFragment_to_settingsFragment)
         }
+    }
+
+    private fun showAlert() {
+        val dialog = MaterialAlertDialogBuilder(requireContext())
+            .setTitle("Restore Previous Data")
+            .setMessage("Logging out will clear all locally stored data. Ensure your data is backed up to our servers to enable restoration later.")
+            .setPositiveButton("Log Out") {dialog, which ->
+                signOut()
+                dialog.dismiss()
+            }
+            .setNegativeButton("Cancel") {dialog, which->
+                dialog.dismiss()
+            }
+            .setCancelable(false)
+            .create()
+        dialog.show()
     }
 
     private fun showPrivacyPolicy() {

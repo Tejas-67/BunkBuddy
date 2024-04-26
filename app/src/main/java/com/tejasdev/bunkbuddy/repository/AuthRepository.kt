@@ -36,7 +36,7 @@ class AuthRepository @Inject constructor(
 
         })
     }
-    fun fetchData(email: String, callback: (Boolean, List<Subject>?)->Unit){
+    fun fetchData(email: String, callback: (Boolean, DownloadData?)->Unit){
          val call = api.fetchBackedUpData(
              hashMapOf(
                  "email" to email
