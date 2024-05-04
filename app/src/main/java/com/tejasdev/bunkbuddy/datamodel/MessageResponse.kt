@@ -1,5 +1,5 @@
 package com.tejasdev.bunkbuddy.datamodel
 
-data class ErrorResponse(
+data class MessageResponse(
     val message: String
 )

@@ -1,13 +1,13 @@
 package com.tejasdev.bunkbuddy.repository
 
-import android.content.Context
-import android.os.AsyncTask
 import android.util.Log
 import com.google.gson.Gson
 import com.tejasdev.bunkbuddy.api.AuthAPI
-import com.tejasdev.bunkbuddy.datamodel.ErrorResponse
+import com.tejasdev.bunkbuddy.datamodel.DataUploadPacket
+import com.tejasdev.bunkbuddy.datamodel.DownloadData
+import com.tejasdev.bunkbuddy.datamodel.MessageResponse
+import com.tejasdev.bunkbuddy.datamodel.Subject
 import com.tejasdev.bunkbuddy.datamodel.User
-import dagger.hilt.android.qualifiers.ApplicationContext
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -16,6 +16,53 @@ import javax.inject.Inject
 class AuthRepository @Inject constructor(
     private val api: AuthAPI
 ){
+    fun uploadData(packet: DataUploadPacket, callback: (Boolean, String)->Unit){
+        val call = api.backupData(packet)
+        call.enqueue(object: Callback<MessageResponse>{
+            override fun onResponse(
+                call: Call<MessageResponse>,
+                response: Response<MessageResponse>
+            ) {
+                val res = response.body()
+                if(response.isSuccessful){
+                    callback(true, res?.message?:"Successfully uploaded data")
+                }
+                else callback(false, "Something went wrong!")
+            }
+
+            override fun onFailure(call: Call<MessageResponse>, t: Throwable) {
+                callback(false, "Something went wrong")
+            }
+
+        })
+    }
+    fun fetchData(email: String, callback: (Boolean, DownloadData?)->Unit){
+         val call = api.fetchBackedUpData(
+             hashMapOf(
+                 "email" to email
+             )
+         )
+        call.enqueue(object: Callback<DownloadData>{
+            override fun onResponse(call: Call<DownloadData>, response: Response<DownloadData>) {
+                if(response.isSuccessful){
+                    Log.w("backup", "resonse: $response")
+                    val body = response.body()
+                    Log.w("backup", "repo: $body")
+                    callback(true, body)
+                }
+                else{
+                    Log.w("backup", "res: ${response.body()} : ${response.message()}")
+                    callback(false, null)
+                }
+            }
+
+            override fun onFailure(call: Call<DownloadData>, t: Throwable) {
+                Log.w("backup", "t: ${t.message}")
+                callback(false, null)
+            }
+
+        })
+    }
     fun login(email: String, password: String, callback: (User?, String?)-> Unit){
         val call = api.loginUser(email, password)
 
@@ -30,8 +77,8 @@ class AuthRepository @Inject constructor(
                     Log.w("api-check", "ns $response")
                     Log.w("api-check ", "error ${response.errorBody()?:"null"}")
                     val errorBody = response.errorBody()?.string()
-                    val errorResponse = Gson().fromJson(errorBody, ErrorResponse::class.java)
-                    val errorMessage = errorResponse?.message?: "Unknown error"
+                    val messageResponse = Gson().fromJson(errorBody, MessageResponse::class.java)
+                    val errorMessage = messageResponse?.message?: "Unknown error"
                     callback(null, errorMessage)
                 }
             }
@@ -53,8 +100,8 @@ class AuthRepository @Inject constructor(
                 else{
                     Log.w("api-check", "ns $response")
                     val errorBody = response.errorBody()?.string()
-                    val errorResponse = Gson().fromJson(errorBody, ErrorResponse::class.java)
-                    val errorMessage = errorResponse?.message?: "Unknown error"
+                    val messageResponse = Gson().fromJson(errorBody, MessageResponse::class.java)
+                    val errorMessage = messageResponse?.message?: "Unknown error"
                     callback(null, errorMessage)
                 }
             }
@@ -77,8 +124,8 @@ class AuthRepository @Inject constructor(
                 else{
                     Log.w("api-check", "ns $response")
                     val errorBody = response.errorBody()?.string()
-                    val errorResponse = Gson().fromJson(errorBody, ErrorResponse::class.java)
-                    val errorMessage = errorResponse?.message?: "Unknown error"
+                    val messageResponse = Gson().fromJson(errorBody, MessageResponse::class.java)
+                    val errorMessage = messageResponse?.message?: "Unknown error"
                     callback(null, errorMessage)
                 }
             }
@@ -100,14 +147,74 @@ class AuthRepository @Inject constructor(
                 else{
                     Log.w("api-check", "ns $response")
                     val errorBody = response.errorBody()?.string()
-                    val errorResponse = Gson().fromJson(errorBody, ErrorResponse::class.java)
-                    val errorMessage = errorResponse?.message?: "Unknown error"
+                    val messageResponse = Gson().fromJson(errorBody, MessageResponse::class.java)
+                    val errorMessage = messageResponse?.message?: "Unknown error"
                     callback(null, errorMessage)
                 }
             }
             override fun onFailure(call: Call<User>, t: Throwable) {
                 callback(null, "${t.message}")
             }
+        })
+    }
+    fun sendOtp(email: String, callback:(Boolean, String)->Unit){
+        val call = api.sendOtp(
+            hashMapOf(
+                "email" to email
+            )
+        )
+        call.enqueue(object: Callback<MessageResponse>{
+            override fun onResponse(
+                call: Call<MessageResponse>,
+                response: Response<MessageResponse>
+            ) {
+                if(response.isSuccessful){
+                    Log.w("api-check", "sendOtp: Success")
+                    val res = response.body()
+                    callback(true, res?.message?:"Couldn't get success message")
+                }
+                else{
+                    Log.w("api-check", "sendOtp: NotSuccess")
+                    val res = response.body()
+                    callback(false, res?.message?:"Something went wrong")
+                }
+            }
+
+            override fun onFailure(call: Call<MessageResponse>, t: Throwable) {
+                callback(false, "Couldn't send OTP.")
+            }
+
+        })
+    }
+
+    fun verifyOtp(email: String, otp: String, callback: (Boolean, String)->Unit){
+        val call = api.verifyOtp(
+            hashMapOf(
+                "email" to email,
+                "userOtp" to otp
+            )
+        )
+        call.enqueue(object: Callback<MessageResponse>{
+            override fun onResponse(
+                call: Call<MessageResponse>,
+                response: Response<MessageResponse>
+            ) {
+                if(response.isSuccessful){
+                    Log.w("api-check", "verifyOtp: Success")
+                    val res = response.body()
+                    callback(true, res?.message?:"Couldn't get success message")
+                }
+                else{
+                    Log.w("api-check", "verifyOtp: NotSuccess")
+                    val res = response.body()
+                    callback(false, res?.message?:"Something went wrong")
+                }
+            }
+
+            override fun onFailure(call: Call<MessageResponse>, t: Throwable) {
+               callback(false, "Something went wrong")
+            }
+
         })
     }
 
@@ -124,13 +231,46 @@ class AuthRepository @Inject constructor(
                 else{
                     Log.w("api-check", "ns $response")
                     val errorBody = response.errorBody()?.string()
-                    val errorResponse = Gson().fromJson(errorBody, ErrorResponse::class.java)
-                    val errorMessage = errorResponse?.message?: "Unknown error"
+                    val messageResponse = Gson().fromJson(errorBody, MessageResponse::class.java)
+                    val errorMessage = messageResponse?.message?: "Unknown error"
                     callback(null, errorMessage)
                 }
             }
             override fun onFailure(call: Call<User>, t: Throwable) {
                 callback(null, "${t.message}")
+            }
+        })
+    }
+
+    fun updateUser(
+        email: String,
+        password: String,
+        image:String,
+        username:String,
+        callback: (User?, String?) -> Unit
+    ){
+        val call = api.updateUserDetails(
+            email = email,
+            password = password,
+            image = image,
+            username = username
+        )
+        call.enqueue(object: Callback<User>{
+            override fun onResponse(call: Call<User>, response: Response<User>) {
+                if(response.isSuccessful){
+                    val user = response.body()
+                    callback(user, null)
+                }
+                else{
+                    val errorBody = response.errorBody()?.string()
+                    val messageResponse = Gson().fromJson(errorBody, MessageResponse::class.java)
+                    val errorMessage = messageResponse?.message?:"Something went wrong"
+                    callback(null, errorMessage)
+                }
+            }
+
+            override fun onFailure(call: Call<User>, t: Throwable) {
+                callback(null, t.message)
             }
         })
     }

@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:paddingTop="24dp"
+    style="@style/ScreenBackground"
+    android:layout_height="match_parent">
+
+    <com.google.android.material.textview.MaterialTextView
+        android:layout_width="wrap_content"
+        android:text="Account"
+        android:textStyle="bold"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:textSize="16sp"
+        android:layout_height="wrap_content"/>
+
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_marginStart="12dp"
+        android:layout_marginEnd="12dp"
+        app:strokeWidth="0dp"
+        app:cardCornerRadius="10dp"
+        android:elevation="32dp"
+        android:id="@+id/change_password_ll"
+        style="@style/TimeCardView"
+        android:layout_marginTop="6dp"
+        android:layout_height="wrap_content">
+        <LinearLayout
+            android:paddingTop="14dp"
+            android:paddingBottom="14dp"
+            android:gravity="center_vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <com.google.android.material.textview.MaterialTextView
+                android:layout_width="wrap_content"
+                android:layout_weight="1"
+                style="@style/HeadingText"
+                android:textSize="16sp"
+                android:layout_marginStart="12dp"
+                android:layout_height="wrap_content"
+                android:text="Change password" />
+
+            <ImageView
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                style="@style/ToolbarIcon"
+                android:rotationY="180"
+                android:layout_marginEnd="12dp"
+                android:src="@drawable/ic_back" />
+
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <com.google.android.material.textview.MaterialTextView
+        android:layout_width="wrap_content"
+        android:text="Personalisation"
+        android:layout_marginTop="32dp"
+        android:textStyle="bold"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:textSize="16sp"
+        android:layout_height="wrap_content"/>
+
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_marginStart="12dp"
+        android:layout_marginEnd="12dp"
+        app:strokeWidth="0dp"
+        app:cardCornerRadius="10dp"
+        android:elevation="32dp"
+        style="@style/TimeCardView"
+        android:layout_marginTop="6dp"
+        android:layout_height="wrap_content">
+        <LinearLayout
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            android:gravity="center_vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <com.google.android.material.textview.MaterialTextView
+                android:layout_width="wrap_content"
+                android:layout_weight="1"
+                android:textSize="16sp"
+                style="@style/HeadingText"
+                android:layout_marginStart="12dp"
+                android:layout_height="wrap_content"
+                android:text="Alerts" />
+
+            <com.google.android.material.materialswitch.MaterialSwitch
+                android:layout_width="wrap_content"
+                android:id="@+id/alerts_switch"
+                android:layout_marginEnd="12dp"
+                android:scaleX=".9"
+                android:scaleY=".9"
+                android:layout_height="24dp"/>
+
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+
+    <com.google.android.material.textview.MaterialTextView
+        android:layout_width="match_parent"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginTop="2dp"
+        android:text="@string/receive_timely_reminders_before_classes_with_low_attendance"
+        android:layout_height="wrap_content"/>
+
+
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_marginStart="12dp"
+        android:layout_marginEnd="12dp"
+        app:strokeWidth="0dp"
+        app:cardCornerRadius="10dp"
+        android:elevation="32dp"
+        style="@style/TimeCardView"
+        android:layout_marginTop="12dp"
+        android:layout_height="wrap_content">
+        <LinearLayout
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            android:gravity="center_vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <com.google.android.material.textview.MaterialTextView
+                android:layout_width="wrap_content"
+                android:layout_weight="1"
+                android:textSize="16sp"
+                style="@style/HeadingText"
+                android:layout_marginStart="12dp"
+                android:layout_height="wrap_content"
+                android:text="Dark Theme" />
+
+            <com.google.android.material.materialswitch.MaterialSwitch
+                android:layout_width="wrap_content"
+                android:id="@+id/theme_switch"
+                android:layout_marginEnd="12dp"
+                android:scaleX=".9"
+                android:scaleY=".9"
+                android:layout_height="24dp"/>
+
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <com.google.android.material.textview.MaterialTextView
+        android:layout_width="match_parent"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginTop="2dp"
+        android:text="@string/customize_the_app_s_appearance_for_comfortable_viewing_in_different_lighting_conditions"
+        android:layout_height="wrap_content"/>
+
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_marginStart="12dp"
+        android:layout_marginEnd="12dp"
+        app:strokeWidth="0dp"
+        app:cardCornerRadius="10dp"
+        android:elevation="32dp"
+        style="@style/TimeCardView"
+        android:layout_marginTop="12dp"
+        android:layout_height="wrap_content">
+        <LinearLayout
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            android:gravity="center_vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <com.google.android.material.textview.MaterialTextView
+                android:layout_width="wrap_content"
+                android:layout_weight="1"
+                android:textSize="16sp"
+                style="@style/HeadingText"
+                android:layout_marginStart="12dp"
+                android:layout_height="wrap_content"
+                android:text="Automatic Backup" />
+
+            <com.google.android.material.materialswitch.MaterialSwitch
+                android:layout_width="wrap_content"
+                android:id="@+id/backup_switch"
+                android:layout_marginEnd="12dp"
+                android:scaleX=".9"
+                android:scaleY=".9"
+                android:layout_height="24dp"/>
+
+        </LinearLayout>
+
+    </com.google.android.material.card.MaterialCardView>
+    <com.google.android.material.textview.MaterialTextView
+        android:layout_width="match_parent"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginTop="2dp"
+        android:text="Securely save your app data when connected to the internet, ensuring you can restore it on any device."
+        android:layout_height="wrap_content"/>
+
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_marginStart="12dp"
+        android:layout_marginEnd="12dp"
+        android:id="@+id/restore_data_card"
+        app:strokeWidth="0dp"
+        app:cardCornerRadius="10dp"
+        android:elevation="32dp"
+        style="@style/TimeCardView"
+        android:layout_marginTop="12dp"
+        android:layout_height="48dp">
+        <LinearLayout
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            android:gravity="center_vertical"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <com.google.android.material.textview.MaterialTextView
+                android:layout_width="wrap_content"
+                android:layout_weight="1"
+                android:textSize="16sp"
+                style="@style/HeadingText"
+                android:layout_marginStart="12dp"
+                android:layout_height="wrap_content"
+                android:text="Restore Data" />
+
+            <ProgressBar
+                android:layout_width="wrap_content"
+                android:visibility="gone"
+                android:layout_height="wrap_content"
+                android:id="@+id/restore_data_progress"
+                android:indeterminate="true"
+                android:indeterminateDrawable="@drawable/progress_drawable"
+                android:layout_marginEnd="16dp"/>
+
+        </LinearLayout>
+
+    </com.google.android.material.card.MaterialCardView>
+    <com.google.android.material.textview.MaterialTextView
+        android:layout_width="match_parent"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginTop="2dp"
+        android:text="Restore your previously backed up data from our servers."
+        android:layout_height="wrap_content"/>
+</LinearLayout>

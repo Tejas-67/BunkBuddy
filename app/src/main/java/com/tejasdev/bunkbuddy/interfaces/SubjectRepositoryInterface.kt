@@ -6,10 +6,13 @@ import com.tejasdev.bunkbuddy.datamodel.Lecture
 import com.tejasdev.bunkbuddy.datamodel.Subject
 
 interface SubjectRepositoryInterface {
-
-
     fun getAllSubjects(): LiveData<List<Subject>>
     suspend fun updateSubjectAndLectures(subject: Subject)
+
+    fun getTotalMissedClasses(): LiveData<Int>
+    fun getTotalAttendedClasses(): LiveData<Int>
+
+    fun clearDatabases()
 
     fun getSubjectSync(): List<Subject>
 

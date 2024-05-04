@@ -2,8 +2,11 @@ package com.tejasdev.bunkbuddy.UI
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.asFlow
 import androidx.lifecycle.viewModelScope
 import com.tejasdev.bunkbuddy.datamodel.HistoryItem
 import com.tejasdev.bunkbuddy.datamodel.Lecture
@@ -13,6 +16,7 @@ import com.tejasdev.bunkbuddy.repository.SubjectRepository
 import dagger.hilt.android.HiltAndroidApp
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -31,8 +35,17 @@ class SubjectViewModel @Inject constructor(
     val saturday = repository.getLecturesForDay(5)
     val sunday = repository.getLecturesForDay(6)
 
-    val allHistory = repository.getHistory()
+    val totalAttendedClasses = repository.getTotalAttendedClasses()
+    val totalMissedClasses = repository.getTotalMissedClasses()
+    val overallAttendancePercentage = totalAttendedClasses.asFlow()
+        .combine(totalMissedClasses.asFlow()) { attended, missed ->
+            ((100.0*attended.toDouble())/((attended+missed).toDouble())).toInt()
+        }
 
+
+    fun clearDatabases(){
+        repository.clearDatabases()
+    }
     fun addHistory(history: HistoryItem){
         viewModelScope.launch {
             repository.addHistoryItem(history)

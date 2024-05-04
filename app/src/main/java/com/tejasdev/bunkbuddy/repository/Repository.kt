@@ -16,10 +16,19 @@ class SubjectRepository @Inject constructor(
     private val historyDao = db.getHistoryDao()
     override fun getAllSubjects(): LiveData<List<Subject>> = dao.getAllSubjects()
 
+    override fun getTotalMissedClasses(): LiveData<Int> = dao.getTotalMissedClasses()
+
+    override fun getTotalAttendedClasses(): LiveData<Int> = dao.getTotalAttendedClasses()
 
     override suspend fun updateSubjectAndLectures(subject: Subject){
         dao.updateSubjectAndRelatedLectures(subject)
     }
+
+    override fun clearDatabases() {
+        dao.clearLectureDatabase()
+        dao.clearSubjectDatabase()
+    }
+
     override fun getSubjectSync(): List<Subject>{
         return dao.getAllSubjectsSync()
     }

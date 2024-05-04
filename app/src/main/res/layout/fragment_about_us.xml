@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".fragments.AboutUsFragment">
+    <ScrollView
+        android:layout_width="match_parent"
+        android:id="@+id/scrollView"
+        android:layout_height="wrap_content">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:orientation="vertical"
+            android:layout_height="wrap_content">
+
+            <com.google.android.material.textview.MaterialTextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="64dp"
+                android:layout_marginStart="24dp"
+                android:layout_marginEnd="24dp"
+                android:id="@+id/sec1"
+                android:textSize="24sp"
+                android:fontFamily="@font/nunito"
+                android:textStyle="bold"
+                android:text="@string/bunkbuddy_about_section_heading"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:id="@+id/sec2"
+                android:layout_marginTop="64dp"
+                android:orientation="vertical"
+                android:layout_height="wrap_content">
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="wrap_content"
+                    app:strokeWidth="0dp"
+                    android:id="@+id/send_feedback_btn"
+                    android:layout_gravity="center_horizontal"
+                    app:layout_constraintTop_toBottomOf="@id/password_text_input"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:cardCornerRadius="24dp"
+                    android:layout_height="wrap_content">
+                    <LinearLayout
+                        android:background="@drawable/drawer_head_bg"
+                        android:layout_width="match_parent"
+                        android:orientation="horizontal"
+                        android:gravity="center"
+                        android:layout_height="wrap_content">
+
+                        <com.google.android.material.textview.MaterialTextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Send feedback"
+                            android:layout_marginStart="24dp"
+                            android:layout_marginEnd="24dp"
+                            android:layout_marginTop="8dp"
+                            android:layout_marginBottom="8dp"
+                            android:id="@+id/btn_text"
+                            android:textStyle="bold"
+                            android:textSize="16sp"
+                            android:textColor="@color/white"/>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="24dp"
+                    android:layout_marginEnd="24dp"
+                    style="@style/HeadingText"
+                    android:textSize="18sp"
+                    android:textAlignment="center"
+                    android:layout_marginTop="4dp"
+                    android:fontFamily="@font/nunito"
+                    android:textStyle="bold"
+                    android:text="@string/feedback_heading"/>
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="24dp"
+                    android:layout_marginEnd="24dp"
+                    android:textAlignment="center"
+                    android:text="@string/feedback_body"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:orientation="vertical"
+                android:id="@+id/sec3"
+                android:layout_marginTop="64dp"
+                android:layout_height="wrap_content">
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="wrap_content"
+                    app:strokeWidth="0dp"
+                    android:id="@+id/review_button"
+                    android:layout_gravity="center_horizontal"
+                    app:layout_constraintTop_toBottomOf="@id/password_text_input"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:cardCornerRadius="24dp"
+                    android:layout_height="wrap_content">
+                    <LinearLayout
+                        android:background="@drawable/drawer_head_bg"
+                        android:layout_width="match_parent"
+                        android:orientation="horizontal"
+                        android:gravity="center"
+                        android:layout_height="wrap_content">
+
+                        <com.google.android.material.textview.MaterialTextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Rate us"
+                            android:layout_marginStart="24dp"
+                            android:layout_marginEnd="24dp"
+                            android:layout_marginTop="8dp"
+                            android:layout_marginBottom="8dp"
+                            android:id="@+id/review_btn_text"
+                            android:textStyle="bold"
+                            android:textSize="16sp"
+                            android:textColor="@color/white"/>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="24dp"
+                    android:layout_marginEnd="24dp"
+                    android:fontFamily="@font/nunito"
+                    android:textSize="18sp"
+                    android:layout_marginTop="4dp"
+                    android:textAlignment="center"
+                    style="@style/HeadingText"
+                    android:textStyle="bold"
+                    android:text="@string/rate_us_heading"/>
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="24dp"
+                    android:layout_marginEnd="24dp"
+                    android:textAlignment="center"
+                    android:text="@string/rate_us_body"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_marginTop="52dp"
+                android:orientation="vertical"
+                android:layout_marginBottom="32dp"
+                android:id="@+id/sec4"
+                android:layout_height="wrap_content">
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:layout_width="match_parent"
+                    android:textSize="18sp"
+                    android:textAlignment="center"
+                    android:text="Get the source code"
+                    android:textStyle="bold"
+                    android:fontFamily="@font/nunito"
+                    style="@style/HeadingText"
+                    android:layout_height="wrap_content"/>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_height="wrap_content">
+                    <com.google.android.material.imageview.ShapeableImageView
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:id="@+id/github"
+                        app:shapeAppearanceOverlay="@style/circularImageView.RoundedIcon"
+                        android:src="@drawable/ic_github"/>
+                </LinearLayout>
+
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

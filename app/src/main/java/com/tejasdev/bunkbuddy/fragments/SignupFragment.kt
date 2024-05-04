@@ -40,9 +40,7 @@ class SignupFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        arguments?.let {
-
-        }
+        arguments?.let {}
     }
 
     override fun onCreateView(
@@ -61,10 +59,6 @@ class SignupFragment : Fragment() {
             findNavController().navigate(R.id.action_signupFragment_to_loginFragment)
         }
 
-        binding.skipBtn.root.setOnClickListener {
-            viewModel.markLoginSkipped()
-            nextActivity()
-        }
         binding.enterBtn.setOnClickListener {
             if(viewModel.hasInternetConnection()){
                 if(enterBtnState.value!!) {
@@ -117,7 +111,6 @@ class SignupFragment : Fragment() {
             }
             else{
                 createSession(user)
-                viewModel.markLoginNotSkipped()
                 nextActivity()
             }
         }
@@ -160,20 +153,7 @@ class SignupFragment : Fragment() {
     }
 
     private fun nextActivity(){
-        val isFirstTime = sharedPref.getBoolean("isFirstTime", true)
-        if(isFirstTime){
-            val editor = sharedPref.edit()
-            editor.putBoolean("isFirstTime", false)
-            editor.apply()
-            moveToOnboardingActivity()
-        }
-        else moveToMainActivity()
-    }
-
-    private fun moveToOnboardingActivity(){
-        val intent = Intent(requireActivity(), OnboardingActivity::class.java)
-        startActivity(intent)
-        (activity as AuthActivity).finish()
+        findNavController().navigate(R.id.action_signupFragment_to_otpFragment)
     }
     private fun createSession(user: User) {
         viewModel.createSession(user)

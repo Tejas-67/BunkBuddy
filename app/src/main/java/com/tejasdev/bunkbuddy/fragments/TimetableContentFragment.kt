@@ -7,6 +7,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -19,23 +20,24 @@ import com.tejasdev.bunkbuddy.util.adapters.TimetableAdapter
 import com.google.android.material.snackbar.Snackbar
 import com.tejasdev.bunkbuddy.R
 import com.tejasdev.bunkbuddy.UI.AlarmViewModel
-import com.tejasdev.bunkbuddy.activities.MainActivity
 import com.tejasdev.bunkbuddy.datamodel.HistoryItem
 import com.tejasdev.bunkbuddy.util.constants.LECTURE_DELETED
+import dagger.hilt.android.AndroidEntryPoint
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
 
-class TimetableContentFragment() : Fragment() {
+@AndroidEntryPoint
+class TimetableContentFragment : Fragment() {
 
     private var _binding: FragmentTimetableContentBinding? = null
     private val binding get()=_binding!!
     private lateinit var adapter: TimetableAdapter
     private var textType = 0
-    private lateinit var viewModel: SubjectViewModel
+    private val viewModel: SubjectViewModel by viewModels()
     private lateinit var lectures: LiveData<List<Lecture>>
     private var dayNumber: Int = 0
-    private lateinit var alarmViewModel: AlarmViewModel
+    private val alarmViewModel: AlarmViewModel by viewModels()
 
     private val handler = Handler(Looper.getMainLooper())
     private val runnable = object: Runnable{
@@ -72,7 +74,6 @@ class TimetableContentFragment() : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        alarmViewModel = (activity as MainActivity).alarmViewModel
         instantiateViewmodel()
         setUpRecyclerView()
         lectures.observe(viewLifecycleOwner, Observer {
@@ -82,7 +83,6 @@ class TimetableContentFragment() : Fragment() {
     }
 
     private fun instantiateViewmodel() {
-        viewModel = (activity as MainActivity).viewModel
         lectures = when(dayNumber){
             0-> viewModel.monday
             1-> viewModel.tuesday

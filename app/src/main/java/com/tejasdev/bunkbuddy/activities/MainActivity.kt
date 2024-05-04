@@ -1,60 +1,50 @@
 package com.tejasdev.bunkbuddy.activities
 
-import android.app.Activity
-import android.app.NotificationChannel
-import android.app.NotificationManager
 import android.content.Context
-import android.content.Intent
 import android.content.SharedPreferences
-import android.content.pm.PackageManager
-import android.net.Uri
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.provider.Settings
 import android.util.Log
-import android.view.GestureDetector
-import android.view.MotionEvent
 import android.view.View
-import android.widget.Toast
-import androidx.activity.viewModels
+import android.view.WindowInsets
+import android.view.WindowInsetsController
+import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.core.app.NotificationManagerCompat
-import androidx.core.content.res.ResourcesCompat
-import androidx.core.view.GravityCompat
+import androidx.lifecycle.Observer
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
-import com.bumptech.glide.Glide
+import androidx.work.BackoffPolicy
+import androidx.work.Constraints
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.NetworkType
+import androidx.work.PeriodicWorkRequest
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkInfo
+import androidx.work.WorkManager
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
-import com.tejasdev.bunkbuddy.alarm.AlarmReceiver
 import com.tejasdev.bunkbuddy.R
-import com.tejasdev.bunkbuddy.UI.AlarmViewModel
 import com.tejasdev.bunkbuddy.UI.AuthViewModel
 import com.tejasdev.bunkbuddy.UI.SubjectViewModel
+import com.tejasdev.bunkbuddy.backup.BackupWorker
 import com.tejasdev.bunkbuddy.databinding.ActivityMainBinding
-import com.tejasdev.bunkbuddy.datamodel.HistoryItem
-import com.tejasdev.bunkbuddy.datamodel.Lecture
-import com.tejasdev.bunkbuddy.util.constants.ALERTS_OFF
-import com.tejasdev.bunkbuddy.util.constants.ALERTS_ON
+import com.tejasdev.bunkbuddy.util.Resource
 import dagger.hilt.android.AndroidEntryPoint
-import java.text.SimpleDateFormat
-import java.util.Calendar
-import java.util.Locale
+import java.util.concurrent.TimeUnit
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
     private var _binding: ActivityMainBinding? = null
     private val binding get()=_binding!!
-    lateinit var sharedPreferences: SharedPreferences
-    val viewModel: SubjectViewModel by viewModels()
     private lateinit var navController: NavController
-    private var isDarkTheme = true
-    var isNotificationEnabled = false
-    private lateinit var gestureDetector:GestureDetector
-    private val authViewModel: AuthViewModel by viewModels()
+    private lateinit var sharedPref: SharedPreferences
     private lateinit var editor: SharedPreferences.Editor
-    val alarmViewModel: AlarmViewModel by viewModels()
+    @Inject lateinit var workManager: WorkManager
+    @Inject lateinit var authViewModel: AuthViewModel
+    @Inject lateinit var viewModel: SubjectViewModel
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         _binding = ActivityMainBinding.inflate(layoutInflater)
@@ -63,267 +53,125 @@ class MainActivity : AppCompatActivity() {
         val navHostFragment = supportFragmentManager.findFragmentById(R.id.navHostFragment) as NavHostFragment
         navController = navHostFragment.navController
         binding.bottomNav.setupWithNavController(navController)
-        setUpSharedPref()
-        setUpSwitchWithFeatureFlags()
-        checkNotificationSettings()
-        applyTheme()
-        setUpAuthViewModel()
-        setUpDrawerLayout()
-        binding.llForLogout.setOnClickListener {
-            logOut(it)
-        }
-        binding.llForAbout.setOnClickListener {
-            showAbout()
-        }
-        binding.llForPrivacy.setOnClickListener {
-            openPrivacyPage()
-        }
-        binding.themeSwitch.setOnCheckedChangeListener { _, _ ->
-            changeTheme()
-        }
-
-        binding.notificationSwitch.setOnCheckedChangeListener { _, isChecked ->
-            if(isChecked) scheduleAlarms()
-            else removeScheduledAlarms()
-        }
-
-        binding.llForHistory.setOnClickListener {
-            navController.navigate(R.id.historyFragment)
-            closeDrawer()
-        }
-    }
-
-    private fun setUpAuthViewModel() {
-
-        if(authViewModel.isLogin()) {
-            binding.authTv.text = getString(R.string.logout)
-            binding.authIcon.setImageDrawable(
-                ResourcesCompat.getDrawable(this.resources, R.drawable.ic_logout, null)
-            )
-        }
-        else if(authViewModel.isSkipped()) {
-            binding.authTv.text = getString(R.string.log_in)
-            binding.authIcon.setImageDrawable(
-                ResourcesCompat.getDrawable(this.resources, R.drawable.ic_login, null)
-            )
-        }
-    }
-
-    private fun setUpSwitchWithFeatureFlags() {
-        isDarkTheme = sharedPreferences.getBoolean(DARK_MODE_ENABLED, true)
-        isNotificationEnabled = sharedPreferences.getBoolean(NOTIFICATION_ENABLED, false)
-        binding.themeSwitch.isChecked = isDarkTheme
-        binding.notificationSwitch.isChecked = isNotificationEnabled
-    }
-
-    private fun setUpSharedPref() {
-        sharedPreferences = this.getSharedPreferences(SHARED_PREF, Context.MODE_PRIVATE)
-        editor = sharedPreferences.edit()
-    }
-
-
-
-    private fun removeScheduledAlarms() {
-        val lectures = viewModel.getAllLecturesSync()
-        changeNotificationSwitchState()
-        for(lecture in lectures){
-            alarmViewModel.cancelAlarm(lecture)
-        }
-    }
-
-    private fun changeNotificationSwitchState() {
-        isNotificationEnabled = !isNotificationEnabled
-        editor.putBoolean(NOTIFICATION_ENABLED, isNotificationEnabled)
-        binding.notificationSwitch.isChecked = isNotificationEnabled
-        editor.apply()
-        val dayAndDate = getDayAndDate()
-
-        val historyItem = HistoryItem(
-            if(isNotificationEnabled) ALERTS_ON else ALERTS_OFF,
-            if(isNotificationEnabled) this.getString(R.string.alerts_on) else this.getString(R.string.alerts_off),
-            time = dayAndDate[0],
-            date = dayAndDate[1]
-        )
-        viewModel.addHistory(historyItem)
-    }
-
-    private fun getDayAndDate():List<String> {
-        val currentDate = Calendar.getInstance().time
-
-        return listOf(
-            SimpleDateFormat("hh:mm a", Locale.US).format(currentDate),
-            SimpleDateFormat("d MMM yyyy", Locale.US).format(currentDate)
-        )
-    }
-
-    private fun createNotificationChannel(){
-        if(Build.VERSION.SDK_INT>= Build.VERSION_CODES.O){
-            val channel = NotificationChannel(
-                AlarmReceiver.NOTIFICATION_CHANNEL_ID,
-                AlarmReceiver.NOTIFICATION_CHANNEL_NAME,
-                NotificationManager.IMPORTANCE_DEFAULT
-            )
-
-            channel.enableVibration(true)
-            val manager = this.getSystemService(
-                NotificationManager::class.java
-            )
-            manager.createNotificationChannel(channel)
-        }
-    }
-    private fun scheduleAlarms() {
-        val lectures = viewModel.getAllLecturesSync()
-        changeNotificationSwitchState()
-        createNotificationChannel()
-        for(lecture in lectures){
-            val perc = getAttendancePerc(lecture)
-            if(perc<lecture.subject.requirement){
-                alarmViewModel.setAlarm(lecture)
+        sharedPref = this.getSharedPreferences(SHARED_PREF, Context.MODE_PRIVATE)
+        editor = sharedPref.edit()
+        setUpTheme()
+        makeBackupDataDecision()
+        navController.addOnDestinationChangedListener{_, destination, _ ->
+            when(destination.id){
+                R.id.allSubjectsFragment, R.id.timetableFragment, R.id.profileFragment -> showBottomNav()
+                else -> hideBottomNav()
             }
         }
     }
 
-    private fun getAttendancePerc(lecture: Lecture): Double {
-        return ((lecture.subject.attended.toDouble()).div(lecture.subject.attended.toDouble() + lecture.subject.missed.toDouble()))*100
-    }
 
-    private fun checkNotificationSettings(){
-        if(!isNotificationPermissionGranted(this)){
-            requestNotificationPermission(this)
+    private fun makeBackupDataDecision(){
+        Log.w("backup", authViewModel.isBackedUpDataFetched().toString())
+        if(authViewModel.isAutomaticBackupOn() && authViewModel.isBackedUpDataFetched()){
+            scheduleBackup()
+        }
+        else if(!authViewModel.ifDataRestoreAlertShown()){
+            authViewModel.markDataRestoreAlertShown()
+            startDataRestore()
         }
     }
 
-    private fun requestNotificationPermission(activity: Activity) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val intent = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS)
-            intent.putExtra(Settings.EXTRA_APP_PACKAGE, activity.packageName)
-            activity.startActivityForResult(intent, NOTIFICATION_PERMISSION_REQUEST_CODE)
-        } else {
-            val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
-            val uri = Uri.fromParts("package", activity.packageName, null)
-            intent.data = uri
-            activity.startActivityForResult(intent, NOTIFICATION_PERMISSION_REQUEST_CODE)
-        }
-    }
-    @Deprecated("Deprecated in Java")
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == NOTIFICATION_PERMISSION_REQUEST_CODE) {
-            binding.notificationSwitch.isClickable = isNotificationPermissionGranted(this)
-        }
-    }
-    private fun isNotificationPermissionGranted(context: Context): Boolean {
-        val notificationManager = NotificationManagerCompat.from(context)
-        return notificationManager.areNotificationsEnabled()
-    }
-
-    private fun setUpDrawerLayout(){
-        if(authViewModel.isLogin()){
-            if(authViewModel.hasInternetConnection()){
-                if(authViewModel.getUserImage()!=Uri.parse("")) Glide.with(this).load(authViewModel.getUserImage()).into(binding.userImageIv)
+    private fun startDataRestore() {
+        Log.w("backup", "showing dialog")
+        val dialog = MaterialAlertDialogBuilder(this)
+            .setTitle("Restore Previous Data")
+            .setMessage("Would you like to restore you previous data from our servers?\n\nIf you prefer to restore later, you can go to settings and manually restore the data.")
+            .setPositiveButton("Restore") {dialog, which ->
+                restoreData()
+                dialog.dismiss()
             }
-            else showSnackbar(binding.userImageIv, getString(R.string.error_loading_image_message))
+            .setNegativeButton("Later") {dialog, which->
+                dialog.dismiss()
+            }
+            .setCancelable(false)
+            .create()
+        dialog.show()
+    }
 
-            binding.usernameTv.text = authViewModel.getUserName()
-            binding.emailTv.text = authViewModel.getEmail()
-        }
-        else {
-            binding.userImageIv.setImageDrawable(resources.getDrawable(R.drawable.default_profile))
-            binding.usernameTv.text = this.getString(R.string.guest)
-            binding.emailTv.visibility = View.GONE
-        }
-
-        gestureDetector = GestureDetector(this, object: GestureDetector.SimpleOnGestureListener(){
-            override fun onFling(
-                e1: MotionEvent?,
-                e2: MotionEvent,
-                velocityX: Float,
-                velocityY: Float
-            ): Boolean {
-                Log.w("motion-event-main", "${e1?.x} ${e1?.y} ${e2.x} ${e2.y} $velocityX $velocityY")
-                if((e1?.x ?: 0f) < e2.x){
-                    openDrawer()
-                    return true
+    private fun restoreData(){
+        authViewModel.restoreData()
+        authViewModel.backedUpData.observe(this, Observer {
+            when(it){
+                is Resource.Success -> {
+                    authViewModel.markBackupDataFetched()
+                    it.data?.forEach{
+                        viewModel.addSubject(it)
+                    }
+                    showSnackbar("Data restored successfully")
                 }
-                else if((e1?.x?:0f) > e2.x){
-                    closeDrawer()
-                    return true
+                is  Resource.Error -> {
+                    showSnackbar("Something went wrong")
                 }
-                return super.onFling(e1, e2, velocityX, velocityY)
+                else -> {}
             }
         })
     }
-    private fun openDrawer(){
-        binding.drawerLayout.openDrawer(GravityCompat.START)
-    }
-    private fun closeDrawer(){
-        binding.drawerLayout.closeDrawer(GravityCompat.START)
 
+    private fun showSnackbar(message: String){
+        val root = findViewById<View>(android.R.id.content)
+        Snackbar.make(root, message, 2000).show()
     }
-    private fun openPrivacyPage() {
-        val uri = Uri.parse(PRIVACY_POLICY_LINK)
-        val intent = Intent(Intent.ACTION_VIEW, uri)
-        startActivity(intent)
+    private fun scheduleBackup() {
+        if(!authViewModel.isAutomaticBackupOn()) return
+        val constraints = Constraints.Builder()
+            .setRequiredNetworkType(NetworkType.CONNECTED)
+            .build()
+        val repeatInterval = 1
+        val workRequest = PeriodicWorkRequestBuilder<BackupWorker>(
+            repeatInterval.toLong(), TimeUnit.DAYS
+        )
+            .setBackoffCriteria(
+                BackoffPolicy.LINEAR,
+                PeriodicWorkRequest.MIN_PERIODIC_INTERVAL_MILLIS,
+                TimeUnit.MILLISECONDS
+            )
+            .setConstraints(constraints)
+            .build()
+
+        workManager.enqueueUniquePeriodicWork(
+            AUTOMATIC_BACKUP_WORK,
+            ExistingPeriodicWorkPolicy.KEEP,
+            workRequest
+        )
+        workManager.getWorkInfoByIdLiveData(workRequest.id)
+            .observe(this, Observer { workInfo->
+                if(workInfo!=null && workInfo.state == WorkInfo.State.SUCCEEDED){
+                    Log.w("workmanager-backup", "upload done")
+                }
+            })
     }
 
-    private fun showAbout() {
-        val version = getAppVersion(applicationContext)
-        Toast.makeText(this, version.toVersionText(), Toast.LENGTH_SHORT).show()
-    }
-
-    private fun String.toVersionText(): String = "Bunkbuddy $this"
-    private fun getAppVersion(context: Context): String {
-        try {
-            val packageManager: PackageManager = context.packageManager
-            val packageName: String = context.packageName
-            val packageInfo = packageManager.getPackageInfo(packageName, 0)
-            return packageInfo.versionName
-        } catch (e: PackageManager.NameNotFoundException) {
-            e.printStackTrace()
-        }
-        return "Unknown"
-    }
-
-    private fun logOut(view: View) {
-        if(authViewModel.isLogin()){
-            authViewModel.signOut()
-            val intent = Intent(this, AuthActivity::class.java)
-            startActivity(intent)
-        }
-        else if(authViewModel.isSkipped()) {
-            authViewModel.markLoginNotSkipped()
-            val intent = Intent(this, AuthActivity::class.java)
-            startActivity(intent)
-        }
-        else{
-            showSnackbar(view, getString(R.string.user_not_logged_in_message))
+    override fun onBackPressed() {
+        val currentDestination = navController.currentDestination?.id
+        when(currentDestination){
+            R.id.settingsFragment -> navController.popBackStack(R.id.profileFragment, false)
+            else -> super.onBackPressed()
         }
     }
 
-    private fun showSnackbar(view: View, message: String){
-        Snackbar.make(view, message, 1000).show()
+    private fun showBottomNav(){
+        binding.bottomNav.visibility = View.VISIBLE
     }
-
-    private fun applyTheme(){
-        if(isDarkTheme){
+    private fun hideBottomNav(){
+        binding.bottomNav.visibility = View.GONE
+    }
+    private fun setUpTheme() {
+        if(sharedPref.getBoolean(DARK_THEME, true))
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-        }
-        else{
-            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-        }
-    }
-    private fun changeTheme(){
-        isDarkTheme = !isDarkTheme
-        val editor = sharedPreferences.edit()
-        editor.putBoolean(DARK_MODE_ENABLED, isDarkTheme)
-        editor.apply()
-        applyTheme()
+        else AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
     }
     companion object{
         const val NOTIFICATION_PERMISSION_REQUEST_CODE = 123
         const val PRIVACY_POLICY_LINK = "https://bunkbuddyprivacypolicy.blogspot.com/2023/12/privacy-policy-for-bunkbuddy.html"
         const val SHARED_PREF = "BunkBuddySharedPref"
-        const val DARK_MODE_ENABLED = "dark_mode"
+        const val DARK_THEME = "dark_theme"
         const val NOTIFICATION_ENABLED = "notification_enabled"
+        const val AUTOMATIC_BACKUP_WORK = "automatic_backup_work"
     }
 }

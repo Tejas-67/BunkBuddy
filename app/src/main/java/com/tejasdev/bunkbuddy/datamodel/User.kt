@@ -10,5 +10,6 @@ data class User(
     val name: String,
     val password: String,
     var updatedAt: String = "",
-    val image: String
+    val image: String,
+    val isVerified: Boolean = false
 )

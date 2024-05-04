@@ -17,32 +17,32 @@ import android.widget.TextView
 import android.widget.TimePicker
 import android.widget.Toast
 import androidx.cardview.widget.CardView
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.viewpager2.widget.ViewPager2
 import com.tejasdev.bunkbuddy.R
 import com.tejasdev.bunkbuddy.UI.SubjectViewModel
-import com.tejasdev.bunkbuddy.activities.MainActivity
 import com.tejasdev.bunkbuddy.databinding.FragmentTimetableBinding
 import com.tejasdev.bunkbuddy.datamodel.Lecture
 import com.tejasdev.bunkbuddy.datamodel.Subject
 import com.tejasdev.bunkbuddy.util.adapters.ViewPagerAdapter
 import com.google.android.material.tabs.TabLayoutMediator
-import com.tejasdev.bunkbuddy.UI.AlarmViewModel
 import com.tejasdev.bunkbuddy.datamodel.HistoryItem
 import com.tejasdev.bunkbuddy.util.constants.LECTURE_ADDED
+import dagger.hilt.android.AndroidEntryPoint
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
 
+@AndroidEntryPoint
 class TimetablePresenterFragment : Fragment() {
 
     private var _binding: FragmentTimetableBinding? = null
     private val binding get() = _binding!!
-    private lateinit var viewModel: SubjectViewModel
+    private val viewModel: SubjectViewModel by viewModels()
     private var popupWindow: PopupWindow? = null
     private val selectedDayLive = MutableLiveData(0)
-    private lateinit var alarmViewModel: AlarmViewModel
 
    override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -63,8 +63,6 @@ class TimetablePresenterFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewModel = (activity as MainActivity).viewModel
-        alarmViewModel = (activity as MainActivity).alarmViewModel
         val list = viewModel.getAllSubjectSync()
         val days = resources.getStringArray(R.array.days).toList()
 
@@ -142,7 +140,7 @@ class TimetablePresenterFragment : Fragment() {
                 endTimePickerVisible = false
             }
             startTimePickerVisible = true
-            timepickerWindow.showAsDropDown(startTimeCard)
+            timepickerWindow.showAsDropDown(startTime)
         }
         endTime.setOnClickListener {
             if(startTimePickerVisible) {
@@ -233,10 +231,10 @@ class TimetablePresenterFragment : Fragment() {
         val lecture = Lecture(dayNumber, subject, start, end, 0, subject.id)
         val id = viewModel.addLecture(lecture)
         lecture.pid = id
-        val notificationEnabled = (activity as MainActivity).isNotificationEnabled
-        if(notificationEnabled){
-            alarmViewModel.setAlarm(lecture)
-        }
+////        val notificationEnabled = (activity as MainActivity).isNotificationEnabled
+//        if(notificationEnabled){
+//            alarmViewModel.setAlarm(lecture)
+//        }
         val dayAndDate = getDayAndDate()
         val historyItem = HistoryItem(
             LECTURE_ADDED,
