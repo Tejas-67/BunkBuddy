@@ -80,6 +80,16 @@
         android:name="com.tejasdev.bunkbuddy.fragments.StatisticsFragment"
         android:label="fragment_statistics"
         tools:layout="@layout/fragment_statistics" />
+    <fragment
+        android:id="@+id/aboutUsFragment"
+        android:name="com.tejasdev.bunkbuddy.fragments.AboutUsFragment"
+        android:label="fragment_about_us"
+        tools:layout="@layout/fragment_about_us" />
+    <fragment
+        android:id="@+id/timetableContentFragment"
+        android:name="com.tejasdev.bunkbuddy.fragments.TimetableContentFragment"
+        android:label="fragment_timetable_content"
+        tools:layout="@layout/fragment_timetable_content" />
 
 
 </navigation>

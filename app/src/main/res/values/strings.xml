@@ -84,4 +84,9 @@
     <string name="account_">Account</string>
     <string name="receive_timely_reminders_before_classes_with_low_attendance">Receive timely reminders before classes with low attendance.</string>
     <string name="customize_the_app_s_appearance_for_comfortable_viewing_in_different_lighting_conditions">Customize the app\'s appearance for comfortable viewing in different lighting conditions.</string>
+    <string name="bunkbuddy_about_section_heading">Let\'s face it, adulting is hard. Between work, social life, and that ever-growing Netflix queue, keeping track of class attendance can easily fall by the wayside. BunkBuddy was created by someone who gets it. We built this app to be your friendly reminder system, ensuring you never miss a crucial lecture (or have to beg the professor for forgiveness again).</string>
+    <string name="rate_us_heading">Loving BunkBuddy? Give it a thumbs up! </string>
+    <string name="rate_us_body">A good rating lets others know this app is worth checking out.</string>
+    <string name="feedback_heading">Your feedback is valuable!</string>
+    <string name="feedback_body">Let us know what you think about BunkBuddy. We appreciate any suggestions you might have</string>
 </resources>

@@ -7,7 +7,10 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.Window
 import androidx.core.content.ContextCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
@@ -37,7 +40,6 @@ class ProfileFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         binding.userName.text = viewModel.getUserName()
         binding.userEmail.text = viewModel.getEmail()
         binding.userImage.setImageDrawable(
@@ -65,7 +67,7 @@ class ProfileFragment : Fragment() {
         }
 
         binding.aboutLl.setOnClickListener {
-            //
+            findNavController().navigate(R.id.aboutUsFragment)
         }
 
         binding.settingsLl.setOnClickListener {

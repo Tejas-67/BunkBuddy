@@ -183,7 +183,7 @@
                             android:textSize="18sp"
                             style="@style/HeadingText"
                             android:layout_weight="1"
-                            android:text="About"/>
+                            android:text="About Us"/>
 
                         <ImageView
                             android:layout_width="16dp"

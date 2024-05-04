@@ -140,7 +140,7 @@ class TimetablePresenterFragment : Fragment() {
                 endTimePickerVisible = false
             }
             startTimePickerVisible = true
-            timepickerWindow.showAsDropDown(startTimeCard)
+            timepickerWindow.showAsDropDown(startTime)
         }
         endTime.setOnClickListener {
             if(startTimePickerVisible) {

@@ -31,6 +31,10 @@
         <item name="cornerSize">50%</item>
     </style>
 
+    <style name="circularImageView.RoundedIcon">
+        <item name="cornerSize">20%</item>
+    </style>
+
     <style name="buttonStyle">
         <item name="cornerFamilyTopRight">cut</item>
         <item name="cornerSizeTopRight">25%</item>
