@@ -38,7 +38,7 @@
             <com.google.android.material.textview.MaterialTextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Tejashwadeep Jha"
+                android:text=""
                 android:maxLines="1"
                 android:id="@+id/user_name"
                 android:layout_marginStart="32dp"
@@ -65,7 +65,7 @@
                     android:layout_marginBottom="6dp"
                     android:layout_marginStart="12dp"
                     android:layout_marginEnd="12dp"
-                    android:text="email@gmail.com"/>
+                    android:text=""/>
             </com.google.android.material.card.MaterialCardView>
 
             <androidx.cardview.widget.CardView
