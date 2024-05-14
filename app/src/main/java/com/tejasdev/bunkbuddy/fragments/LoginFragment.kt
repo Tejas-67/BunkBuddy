@@ -44,8 +44,8 @@ class LoginFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        if(viewModel.isLogin() && !viewModel.isVerified()){
-            findNavController().navigate(R.id.action_loginFragment_to_otpFragment)
+        if(viewModel.isLogin()){
+            moveToMainActivity()
         }
         binding.signUpTv.setOnClickListener {
             findNavController().navigate(R.id.action_loginFragment_to_signupFragment)
@@ -66,9 +66,12 @@ class LoginFragment : Fragment() {
                                 showSnackbar(message ?: "Unknown error")
                             }
                             else {
-                                createSesssion(user)
-                                if(!user.isVerified) findNavController().navigate(R.id.action_loginFragment_to_otpFragment)
+                                if(!user.isVerified) {
+                                    val action = LoginFragmentDirections.actionLoginFragmentToOtpFragment(user)
+                                    findNavController().navigate(action)
+                                }
                                 else{
+                                    createSesssion(user)
                                     nextActivity()
                                 }
                             }

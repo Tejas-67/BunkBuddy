@@ -33,5 +33,11 @@
         android:id="@+id/otpFragment"
         android:name="com.tejasdev.bunkbuddy.fragments.OtpFragment"
         android:label="fragment_otp"
-        tools:layout="@layout/fragment_otp" />
+        tools:layout="@layout/fragment_otp" >
+        <argument
+            android:name="user"
+            app:argType="com.tejasdev.bunkbuddy.datamodel.User"
+            app:nullable="true"
+            android:defaultValue="@null" />
+    </fragment>
 </navigation>

@@ -3,10 +3,8 @@ package com.tejasdev.bunkbuddy.session
 import android.content.Context
 import android.net.Uri
 import android.util.Log
-import com.tejasdev.bunkbuddy.activities.AuthActivity
 
 class Session private constructor(context: Context){
-
     private val sharedPref = context.getSharedPreferences(
         SHARED_PREF,
         Context.MODE_PRIVATE

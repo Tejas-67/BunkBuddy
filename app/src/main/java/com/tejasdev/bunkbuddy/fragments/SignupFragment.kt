@@ -110,8 +110,7 @@ class SignupFragment : Fragment() {
                 showSnackbar(message?:"Unknown Error")
             }
             else{
-                createSession(user)
-                nextActivity()
+                nextActivity(user)
             }
         }
     }
@@ -152,18 +151,10 @@ class SignupFragment : Fragment() {
         }
     }
 
-    private fun nextActivity(){
-        findNavController().navigate(R.id.action_signupFragment_to_otpFragment)
+    private fun nextActivity(user: User){
+        val action = SignupFragmentDirections.actionSignupFragmentToOtpFragment(user = user)
+        findNavController().navigate(action)
     }
-    private fun createSession(user: User) {
-        viewModel.createSession(user)
-    }
-    private fun moveToMainActivity(){
-        val intent = Intent(activity, MainActivity::class.java)
-        startActivity(intent)
-        (activity as AuthActivity).finish()
-    }
-
     private fun checkCredentials(name: String, email: String, password: String, vpassword: String): Boolean{
         if(vpassword!=password){
             showSnackbar("Passwords don't match")

@@ -13,6 +13,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
+import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
 import com.tejasdev.bunkbuddy.R
 import com.tejasdev.bunkbuddy.UI.AuthViewModel
@@ -20,6 +21,7 @@ import com.tejasdev.bunkbuddy.activities.AuthActivity
 import com.tejasdev.bunkbuddy.activities.MainActivity
 import com.tejasdev.bunkbuddy.activities.OnboardingActivity
 import com.tejasdev.bunkbuddy.databinding.FragmentOtpBinding
+import com.tejasdev.bunkbuddy.datamodel.User
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -31,10 +33,13 @@ class OtpFragment : Fragment() {
     private val verifyButtonState = MutableLiveData(false)
     private lateinit var sharedPref: SharedPreferences
     private lateinit var editor: SharedPreferences.Editor
+    private var user: User? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        arguments?.let {}
+        arguments?.let {
+            user = it.getParcelable("user")
+        }
     }
 
     override fun onCreateView(
@@ -47,6 +52,7 @@ class OtpFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        if(user==null) findNavController().popBackStack()
         sharedPref = requireContext().getSharedPreferences(AuthActivity.SHARED_PREFERENCE, Context.MODE_PRIVATE)
         editor = sharedPref.edit()
         if(viewModel.lastOtpTimeStamp==null || viewModel.lastOtpTimeStamp!! + 5*1000*60<=System.currentTimeMillis()) sendOtp()
@@ -85,7 +91,7 @@ class OtpFragment : Fragment() {
         showProgressBar()
         verifyButtonState.postValue(false)
         viewModel.sendOtp(
-            viewModel.getEmail()
+            user!!.email
         ){ success, message ->
             hideProgressBar()
             verifyButtonState.postValue(success)
@@ -97,12 +103,16 @@ class OtpFragment : Fragment() {
         showProgressBar()
         verifyButtonState.postValue(false)
         viewModel.verifyOtp(
-            viewModel.getEmail(),
+            user!!.email,
             userOtp
         ){success, message ->
             hideProgressBar()
             showSnackbar(message)
             if(success){
+                user?.let{
+                    it.isVerified = true
+                    viewModel.createSession(it)
+                }
                 nextScreen()
             }
             else{

@@ -1,7 +1,10 @@
 package com.tejasdev.bunkbuddy.datamodel
 
+import android.os.Parcelable
 import com.google.gson.annotations.SerializedName
+import kotlinx.parcelize.Parcelize
 
+@Parcelize
 data class User(
     @SerializedName("__v") var v: Int = 0,
     @SerializedName("_id") var id: String = "",
@@ -11,5 +14,5 @@ data class User(
     val password: String,
     var updatedAt: String = "",
     val image: String,
-    val isVerified: Boolean = false
-)
+    var isVerified: Boolean = false
+): Parcelable
