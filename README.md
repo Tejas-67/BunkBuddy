@@ -4,6 +4,9 @@ Native android application built with Kotlin and XML to keep track of attendance
 ## Features
 * Track individual subject attendance
 * Track lectures
+* Get timely reminders (notifications) before classes with low attendance.
+* Backup your data to cloud
+* Dark and Light Theme
 * Get insights on which classes can be bunked.
 * User friendly and intuitive UI with scroll gestures like swipe to delete and hold to drag
 ## Screenshots
@@ -15,7 +18,10 @@ Native android application built with Kotlin and XML to keep track of attendance
 ## Tech Stack Used
 * Kotlin
 * XML
+* Dagger-Hilt
 * Room Persistence Library
 * Coroutines
+* Retrofit
+* JUnit4
 ## Use this application
 * Clone this repo and build in android studio
